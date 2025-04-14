@@ -1,7 +1,19 @@
 <!DOCTYPE html>
 <html>
-<body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+<head>
+  <title>Protected Page</title>
+  <script>
+    function checkPassword() {
+      const password = prompt("Welcome to my project, please enter your password");
+      if (password !== "employer") {
+        alert("Incorrect password.");
+        window.location.href = "https://google.com"; // redirect if wrong
+      }
+    }
+  </script>
+</head>
+<body onload="checkPassword()">
+  <h1>Welcome to My Site</h1>
+  <p>This content is protected by a basic password.</p>
 </body>
 </html>
