@@ -1,4 +1,7 @@
-<!DOCTYPE html>
+# Re-run after code execution environment reset to generate the HTML file again
+from pathlib import Path
+
+html_content = """<!DOCTYPE html>
 <html>
 <head>
   <title>Currency Dashboard</title>
@@ -20,8 +23,8 @@
   </style>
 </head>
 <body>
-  <h1>welcome to partconsole.com</h1>
-  <h2>live Exchange Rate USD</h2>
+  <h1>Welcome to partconsole.com</h1>
+  <h2>Live Exchange Rates (USD to Selected Currencies)</h2>
   <canvas id="currencyChart"></canvas>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -37,10 +40,7 @@
         const currencies = ['EUR', 'JPY', 'GBP', 'AUD', 'CAD', 'INR'];
         const rates = currencies.map(code => data.rates[code]);
 
-        return {
-          labels: currencies,
-          rates: rates
-        };
+        return { labels: currencies, rates: rates };
       }
 
       async function renderChart() {
@@ -77,3 +77,9 @@
   </script>
 </body>
 </html>
+"""
+
+output_path = Path("/mnt/data/main_frankfurter.html")
+output_path.write_text(html_content)
+
+output_path.name
