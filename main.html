@@ -1,85 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Currency Dashboard</title>
+  <title>Exchange Rate Report - April 14, 2024</title>
   <style>
-    body {
-      background: white;
-      color: black;
-      font-family: "Courier New", Courier, monospace;
-      text-align: center;
-      padding: 2rem;
-    }
-    #chart-container {
-      width: 90%;
-      max-width: 1000px;
-      margin: 2rem auto;
-    }
-    canvas {
-      width: 100% !important;
-      height: 500px !important;
-    }
-    h1, h2 {
-      margin-bottom: 1rem;
-    }
+    body { font-family: monospace; padding: 2rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid black; padding: 8px; text-align: left; }
   </style>
 </head>
 <body>
-  <h1>Welcome to partconsole.com</h1>
-  <h2>Live Exchange Rates (USD to Selected Currencies)</h2>
-  <div id="chart-container">
-    <canvas id="currencyChart"></canvas>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    window.onload = function () {
-      const ctx = document.getElementById('currencyChart').getContext('2d');
-      let chart;
-
-      async function fetchData() {
-        const res = await fetch('https://api.frankfurter.app/latest?from=USD');
-        const data = await res.json();
-
-        const currencies = ['JPY', 'INR', 'EUR', 'GBP']; // only supported by Frankfurter
-        const rates = currencies.map(code => data.rates[code]);
-
-        return { labels: currencies, rates: rates };
-      }
-
-      async function renderChart() {
-        const { labels, rates } = await fetchData();
-
-        if (chart) chart.destroy();
-
-        chart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Exchange Rate vs. USD',
-              data: rates,
-              borderColor: 'black',
-              borderWidth: 2,
-              fill: false,
-              tension: 0.1
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                beginAtZero: false
-              }
-            }
-          }
-        });
-      }
-
-      renderChart();
-      setInterval(renderChart, 10 * 60 * 1000);
-    };
-  </script>
+  <h1>Exchange Rate Report (USD Base)</h1>
+  <p>Date: April 14, 2024</p>
+  <table>
+    <tr><th>Currency</th><th>Exchange Rate</th></tr>
+    <tr><td>EUR</td><td>0.93</td></tr>
+    <tr><td>JPY</td><td>152.21</td></tr>
+    <tr><td>INR</td><td>83.45</td></tr>
+    <tr><td>GBP</td><td>0.80</td></tr>
+  </table>
 </body>
 </html>
