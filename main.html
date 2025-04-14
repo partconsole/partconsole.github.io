@@ -3,23 +3,23 @@
 <head>
   <title>Exchange Rate Report - April 14, 2024</title>
   <style>
-    body {
+    body {{
       font-family: monospace;
       padding: 2rem;
       position: relative;
       min-height: 100vh;
-    }
-    table {
+    }}
+    table {{
       width: 100%;
       border-collapse: collapse;
       margin-top: 1rem;
-    }
-    th, td {
+    }}
+    th, td {{
       border: 1px solid black;
       padding: 8px;
       text-align: left;
-    }
-    #export-btn {
+    }}
+    #export-btn {{
       position: absolute;
       bottom: 60px;
       right: 40px;
@@ -30,8 +30,8 @@
       color: white;
       cursor: pointer;
       font-family: inherit;
-    }
-    footer {
+    }}
+    footer {{
       position: absolute;
       bottom: 10px;
       left: 0;
@@ -39,7 +39,7 @@
       text-align: center;
       font-size: 0.9rem;
       color: #888;
-    }
+    }}
   </style>
 </head>
 <body>
@@ -48,18 +48,14 @@
   <p>Date: April 14, 2024</p>
   <table id="report-table">
     <tr><th>Currency</th><th>Exchange Rate</th><th>Percent Conversion (%)</th></tr>
-    <tr><td>EUR (Euro)</td><td>0.93</td><td>93%</td></tr>
-    <tr><td>JPY (Japanese Yen)</td><td>152.21</td><td>15221%</td></tr>
-    <tr><td>KRW (South Korean Won)</td><td>1374.25</td><td>137425%</td></tr>
-    <tr><td>CNY (Chinese Yuan)</td><td>7.23</td><td>723%</td></tr>
-    <tr><td>VND (Vietnamese Dong)</td><td>24485.00</td><td>2448500%</td></tr>
+    {rows}
   </table>
 
   <button id="export-btn">Export as Excel</button>
   <footer>&copy; 2024 partconsole.com</footer>
 
   <script>
-    document.getElementById("export-btn").onclick = function () {
+    document.getElementById("export-btn").onclick = function () {{
       let table = document.getElementById("report-table");
       let rows = Array.from(table.rows);
       let csvContent = "data:text/csv;charset=utf-8,"
@@ -72,7 +68,7 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    };
+    }};
   </script>
 </body>
 </html>
