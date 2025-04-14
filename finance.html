@@ -56,7 +56,7 @@
   </table>
 
   <button id="export-btn">Export as Excel</button>
-  <button id="return-btn">Return to Main Menu</button>
+  <button id="return-btn">Return to Hub</button>
   <footer>&copy; partconsole.com</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -71,7 +71,11 @@
     // Generate and trigger download of .xlsx file
     XLSX.writeFile(workbook, "exchange_rate_report.xlsx");
   };
+  
+    // Return to Navigation Hub functionality
+    document.getElementById("return-btn").onclick = function () {
+      window.location.href = "main.html";
+    };
 </script>
 </html>
 </body>
-</html>
