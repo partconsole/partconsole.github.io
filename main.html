@@ -26,55 +26,54 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const ctx = document.getElementById('currencyChart').getContext('2d');
-    let chart;
+    window.onload = function () {
+      const ctx = document.getElementById('currencyChart').getContext('2d');
+      let chart;
 
-    async function fetchData() {
-      const res = await fetch('https://api.exchangerate.host/latest?base=USD');
-      const data = await res.json();
+      async function fetchData() {
+        const res = await fetch('https://api.exchangerate.host/latest?base=USD');
+        const data = await res.json();
 
-      // Customize this list with your selected currencies
-      const currencies = ['EUR', 'JPY', 'GBP', 'AUD', 'CAD', 'INR'];
-      const rates = currencies.map(code => data.rates[code]);
+        const currencies = ['EUR', 'JPY', 'GBP', 'AUD', 'CAD', 'INR'];
+        const rates = currencies.map(code => data.rates[code]);
 
-      return {
-        labels: currencies,
-        rates: rates
-      };
-    }
+        return {
+          labels: currencies,
+          rates: rates
+        };
+      }
 
-    async function renderChart() {
-      const { labels, rates } = await fetchData();
+      async function renderChart() {
+        const { labels, rates } = await fetchData();
 
-      if (chart) chart.destroy(); // Reset the chart if it already exists
+        if (chart) chart.destroy();
 
-      chart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Exchange Rate vs. USD',
-            data: rates,
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            borderColor: 'black',
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: false
+        chart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Exchange Rate vs. USD',
+              data: rates,
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              borderColor: 'black',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: false
+              }
             }
           }
-        }
-      });
-    }
+        });
+      }
 
-    renderChart();
-
-    // Optional: update every 10 minutes
-    setInterval(renderChart, 10 * 60 * 1000);
+      renderChart();
+      setInterval(renderChart, 10 * 60 * 1000);
+    };
   </script>
 </body>
 </html>
