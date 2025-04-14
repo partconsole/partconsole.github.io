@@ -1,7 +1,4 @@
-# Re-run after state reset to generate the protected HTML file
-from pathlib import Path
-
-html_content = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <title>Protected Page</title>
@@ -21,9 +18,3 @@ html_content = """<!DOCTYPE html>
 </body>
 </html>
 """
-
-# Save the file
-protected_file_path = Path("/mnt/data") / "index_protected.html"
-protected_file_path.write_text(html_content)
-
-protected_file_path.name
