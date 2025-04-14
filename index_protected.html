@@ -1,0 +1,29 @@
+# Re-run after state reset to generate the protected HTML file
+from pathlib import Path
+
+html_content = """<!DOCTYPE html>
+<html>
+<head>
+  <title>Protected Page</title>
+  <script>
+    function checkPassword() {
+      const password = prompt("Enter the password to access this site:");
+      if (password !== "employee") {
+        alert("Incorrect password.");
+        window.location.href = "https://google.com";
+      }
+    }
+  </script>
+</head>
+<body onload="checkPassword()">
+  <h1>Welcome to My Site</h1>
+  <p>This content is protected by a basic password.</p>
+</body>
+</html>
+"""
+
+# Save the file
+protected_file_path = Path("/mnt/data") / "index_protected.html"
+protected_file_path.write_text(html_content)
+
+protected_file_path.name
