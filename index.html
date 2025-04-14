@@ -4,8 +4,8 @@
   <title>Protected Page</title>
   <script>
     function checkPassword() {
-      const password = prompt("Welcome to my project, please enter your password");
-      if (password !== "employer") {
+      const password = prompt("Enter the password to access this site:");
+      if (password !== "yourPasswordHere") {
         alert("Incorrect password.");
         window.location.href = "https://google.com"; // redirect if wrong
       }
