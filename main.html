@@ -58,21 +58,18 @@
   <button id="export-btn">Export as Excel</button>
   <footer>&copy; partconsole.com</footer>
 
-  <script>
-    document.getElementById("export-btn").onclick = function () {
-      let table = document.getElementById("report-table");
-      let rows = Array.from(table.rows);
-      let csvContent = "data:text/csv;charset=utf-8,"
-        + rows.map(row => Array.from(row.cells).map(cell => cell.textContent).join(",")).join("\\n");
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "exchange_rate_report_2024-04-14.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    };
-  </script>
+<script>
+  document.getElementById("export-btn").onclick = function () {
+    const table = document.getElementById("report-table");
+
+    // Convert HTML table to SheetJS worksheet
+    const workbook = XLSX.utils.table_to_book(table, { sheet: "Exchange Report" });
+
+    // Generate and trigger download of .xlsx file
+    XLSX.writeFile(workbook, "exchange_rate_report.xlsx");
+  };
+</script>
 </body>
 </html>
