@@ -1,6 +1,6 @@
-# Re-run after code execution environment reset to generate the HTML file again
 from pathlib import Path
 
+# Updated HTML content with supported currencies and line chart
 html_content = """<!DOCTYPE html>
 <html>
 <head>
@@ -37,7 +37,7 @@ html_content = """<!DOCTYPE html>
         const res = await fetch('https://api.frankfurter.app/latest?from=USD');
         const data = await res.json();
 
-        const currencies = ['EUR', 'JPY', 'GBP', 'AUD', 'CAD', 'INR'];
+        const currencies = ['JPY', 'INR', 'EUR', 'GBP']; // only supported by Frankfurter
         const rates = currencies.map(code => data.rates[code]);
 
         return { labels: currencies, rates: rates };
@@ -49,15 +49,16 @@ html_content = """<!DOCTYPE html>
         if (chart) chart.destroy();
 
         chart = new Chart(ctx, {
-          type: 'bar',
+          type: 'line',
           data: {
             labels: labels,
             datasets: [{
               label: 'Exchange Rate vs. USD',
               data: rates,
-              backgroundColor: 'rgba(0, 0, 0, 0.8)',
               borderColor: 'black',
-              borderWidth: 1
+              borderWidth: 2,
+              fill: false,
+              tension: 0.1
             }]
           },
           options: {
@@ -79,7 +80,8 @@ html_content = """<!DOCTYPE html>
 </html>
 """
 
-output_path = Path("/mnt/data/main_frankfurter.html")
+# Write to file
+output_path = Path("/mnt/data/main_frankfurter_line_chart.html")
 output_path.write_text(html_content)
 
 output_path.name
