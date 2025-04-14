@@ -1,7 +1,4 @@
-from pathlib import Path
-
-# Updated HTML content with supported currencies and line chart
-html_content = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <title>Currency Dashboard</title>
@@ -13,9 +10,14 @@ html_content = """<!DOCTYPE html>
       text-align: center;
       padding: 2rem;
     }
-    canvas {
-      max-width: 700px;
+    #chart-container {
+      width: 90%;
+      max-width: 1000px;
       margin: 2rem auto;
+    }
+    canvas {
+      width: 100% !important;
+      height: 500px !important;
     }
     h1, h2 {
       margin-bottom: 1rem;
@@ -25,7 +27,9 @@ html_content = """<!DOCTYPE html>
 <body>
   <h1>Welcome to partconsole.com</h1>
   <h2>Live Exchange Rates (USD to Selected Currencies)</h2>
-  <canvas id="currencyChart"></canvas>
+  <div id="chart-container">
+    <canvas id="currencyChart"></canvas>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -63,6 +67,7 @@ html_content = """<!DOCTYPE html>
           },
           options: {
             responsive: true,
+            maintainAspectRatio: false,
             scales: {
               y: {
                 beginAtZero: false
@@ -78,10 +83,3 @@ html_content = """<!DOCTYPE html>
   </script>
 </body>
 </html>
-"""
-
-# Write to file
-output_path = Path("/mnt/data/main_frankfurter_line_chart.html")
-output_path.write_text(html_content)
-
-output_path.name
