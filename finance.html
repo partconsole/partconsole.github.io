@@ -1,20 +1,75 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Finance - partconsole.com</title>
+  <title>Exchange Rate Report - April 14, 2024</title>
   <style>
     body {
       font-family: monospace;
-      text-align: center;
       padding: 2rem;
-      background: white;
-      color: black;
+      position: relative;
+      min-height: 100vh;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: left;
+    }
+    #export-btn {
+      position: absolute;
+      bottom: 60px;
+      right: 40px;
+      font-size: 0.9rem;
+      padding: 6px 10px;
+      border: 1px solid black;
+      background-color: black;
+      color: white;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    footer {
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #888;
     }
   </style>
 </head>
 <body>
-  <h1>Finance Section</h1>
-  <p>This is the Finance page. Here you'll see the exchange rate reports and other financial data.</p>
-  <p><a href="hub.html">Return to Main Menu</a></p>
+  <h1 style="text-align: center;">partconsole.com</h1>
+  <h2>Exchange Rate Report (USD Base)</h2>
+  <p>Date: April 14, 2024</p>
+  <table id="report-table">
+    <tr><th>Currency</th><th>Exchange Rate</th><th>Percent Conversion (%)</th></tr>
+    <tr><td>EUR (Euro)</td><td>0.93</td><td>+7.53%</td></tr>
+    <tr><td>JPY (Japanese Yen)</td><td>152.21</td><td>-99.34%</td></tr>
+    <tr><td>KRW (South Korean Won)</td><td>1374.25</td><td>-99.93%</td></tr>
+    <tr><td>CNY (Chinese Yuan)</td><td>7.23</td><td>-86.16%</td></tr>
+    <tr><td>VND (Vietnamese Dong)</td><td>24485.00</td><td>-99.99%</td></tr>
+  </table>
+
+  <button id="export-btn">Export as Excel</button>
+  <footer>&copy; partconsole.com</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<script>
+  document.getElementById("export-btn").onclick = function () {
+    const table = document.getElementById("report-table");
+
+    // Convert HTML table to SheetJS worksheet
+    const workbook = XLSX.utils.table_to_book(table, { sheet: "Exchange Report" });
+
+    // Generate and trigger download of .xlsx file
+    XLSX.writeFile(workbook, "exchange_rate_report.xlsx");
+  };
+</script>
 </body>
 </html>
