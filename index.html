@@ -2,36 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Protected Page</title>
+  <title>Enter Password</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
+      background-color: black;
+      color: green;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 1.2rem;
       display: flex;
-      height: 100vh;
       justify-content: center;
       align-items: center;
+      height: 100vh;
       margin: 0;
     }
-    .login-box {
-      background-color: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      text-align: center;
+
+    .terminal {
+      text-align: left;
+      max-width: 600px;
     }
-    input[type="password"] {
-      padding: 0.5rem;
-      margin-top: 1rem;
+
+    input {
+      background: black;
+      color: green;
+      border: none;
+      border-bottom: 2px solid green;
+      font-size: 1.2rem;
       width: 100%;
-      font-size: 1rem;
-    }
-    button {
       margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
-      cursor: pointer;
+      outline: none;
     }
+
     .error {
       color: red;
       margin-top: 1rem;
@@ -39,26 +39,22 @@
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <h2>Enter Password</h2>
-    <input type="password" id="password" placeholder="Password" />
-    <br />
-    <button onclick="validatePassword()">Login</button>
+  <div class="terminal">
+    <p>> Please enter password to continue:</p>
+    <input type="password" id="password" onkeydown="handleKey(event)" autofocus />
     <div id="error" class="error"></div>
   </div>
 
   <script>
-    function validatePassword() {
-      const input = document.getElementById("password").value;
-      const correctPassword = "employee";
-      if (input === correctPassword) {
-        // If correct, show your protected content
-        document.body.innerHTML = `
-          <h1 style="text-align:center; margin-top: 20vh;">Welcome to My Site 🎉</h1>
-          <p style="text-align:center;">You’ve entered the correct password.</p>
-        `;
-      } else {
-        document.getElementById("error").textContent = "Incorrect password.";
+    function handleKey(event) {
+      if (event.key === "Enter") {
+        const input = document.getElementById("password").value;
+        const correctPassword = "employee";
+        if (input === correctPassword) {
+          window.location.href = "main.html"; // 🔁 Set this to your real site page!
+        } else {
+          document.getElementById("error").textContent = "> ACCESS DENIED.";
+        }
       }
     }
   </script>
