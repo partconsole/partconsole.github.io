@@ -31,7 +31,7 @@
       let chart;
 
       async function fetchData() {
-        const res = await fetch('https://api.exchangerate.host/latest?base=USD');
+        const res = await fetch('https://api.frankfurter.app/latest?from=USD');
         const data = await res.json();
 
         const currencies = ['EUR', 'JPY', 'GBP', 'AUD', 'CAD', 'INR'];
