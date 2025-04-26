@@ -3,69 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <title>History - partconsole.com</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     body {
       font-family: monospace;
       background-color: white;
       color: black;
       padding: 2rem;
-      text-align: center;
-      min-height: 100vh;
       position: relative;
+      min-height: 100vh;
+      text-align: center;
     }
-
-    .history-container {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      align-items: center;
-      margin-bottom: 6rem;
+    .content-container {
+      max-width: 900px;
+      margin: 0 auto;
     }
-
-    .report-card {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
       border: 1px solid black;
-      padding: 1rem 2rem;
-      width: 500px;
+      padding: 8px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    tr:nth-child(even) {
       background-color: #f9f9f9;
     }
-
-    .report-info {
-      text-align: left;
-      font-size: 1.1rem;
-    }
-
-    button, .export-btn, .return-btn {
+    button {
+      font-family: monospace;
       font-size: 0.9rem;
       padding: 6px 10px;
       border: 1px solid black;
       background-color: black;
       color: white;
       cursor: pointer;
-      font-family: inherit;
       border-radius: 0;
+      margin-top: 1rem;
     }
-
-    .older-link {
-      font-size: 1rem;
-      margin-top: 2rem;
-      text-decoration: underline;
-      color: blue;
-      cursor: pointer;
-    }
-
-    .return-btn {
+    #fixed-buttons {
       position: fixed;
       bottom: 20px;
       right: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
     }
-
-    .highlight-top {
-      background-color: #ffffcc;
+    #fixed-buttons button {
+      margin-bottom: 10px;
     }
-
     footer {
       position: absolute;
       bottom: 10px;
@@ -75,74 +63,76 @@
       font-size: 0.9rem;
       color: #888;
     }
+    #brand-menu {
+      display: inline-block;
+      padding: 0.6rem 1.2rem;
+      border: 2px solid black;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: white;
+      color: black;
+      margin-bottom: 2rem;
+      transition: all 0.3s ease;
+    }
+    #brand-menu:hover {
+      background-color: black;
+      color: white;
+    }
   </style>
 </head>
-
 <body>
-  <h1>Exchange Rate History</h1>
-  <h2>Latest 5 Reports</h2>
 
-  <div class="history-container" id="history-container">
-    <!-- Report cards manually listed -->
-    <div class="report-card highlight-top">
-      <div class="report-info">29/04/2025 - Week18/2025</div>
-      <a href="history/exchange_rate_2025-04-29.xlsx" download>
-        <button class="export-btn">Download</button>
-      </a>
-    </div>
+<div id="brand-menu" onclick="goHome()">economical @ partconsole.com</div>
 
-    <div class="report-card">
-      <div class="report-info">22/04/2025 - Week17/2025</div>
-      <a href="history/exchange_rate_2025-04-22.xlsx" download>
-        <button class="export-btn">Download</button>
-      </a>
-    </div>
+<div class="content-container">
+  <h2>Saved Historical Exchange Reports</h2>
 
-    <div class="report-card">
-      <div class="report-info">15/04/2025 - Week16/2025</div>
-      <a href="history/exchange_rate_2025-04-15.xlsx" download>
-        <button class="export-btn">Download</button>
-      </a>
-    </div>
+  <table id="history-table">
+    <thead>
+      <tr>
+        <th>Date Saved</th>
+        <th>Download</th>
+      </tr>
+    </thead>
+    <tbody id="history-body">
+      <!-- Historical entries dynamically inserted here -->
+    </tbody>
+  </table>
 
-    <div class="report-card">
-      <div class="report-info">08/04/2025 - Week15/2025</div>
-      <a href="history/exchange_rate_2025-04-08.xlsx" download>
-        <button class="export-btn">Download</button>
-      </a>
-    </div>
+  <button onclick="window.location.href='older.html'">View Older Reports</button>
+</div>
 
-    <div class="report-card">
-      <div class="report-info">01/04/2025 - Week14/2025</div>
-      <a href="history/exchange_rate_2025-04-01.xlsx" download>
-        <button class="export-btn">Download</button>
-      </a>
-    </div>
-  </div>
+<div id="fixed-buttons">
+  <button onclick="window.location.href='economical.html'">Return to Economical</button>
+</div>
 
-  <div>
-    <a href="older.html" class="older-link" id="older-link">View Older Reports</a>
-  </div>
+<footer>&copy; partconsole.com</footer>
 
-  <button class="return-btn" onclick="window.location.href='economical.html'">Return to Economical</button>
+<script>
+function goHome() {
+  window.location.href = "main.html";
+}
 
-  <footer>&copy; partconsole.com</footer>
+// Example mock loading history
+const historyBody = document.getElementById("history-body");
+const mockHistory = [
+  { date: "04/24/2025", file: "history_2025_04_24.xlsx" },
+  { date: "04/17/2025", file: "history_2025_04_17.xlsx" },
+  { date: "04/10/2025", file: "history_2025_04_10.xlsx" },
+  { date: "04/03/2025", file: "history_2025_04_03.xlsx" },
+  { date: "03/27/2025", file: "history_2025_03_27.xlsx" },
+];
 
-  <script>
-    window.addEventListener('DOMContentLoaded', () => {
-      fetch('older.html')
-        .then(response => response.text())
-        .then(html => {
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = html;
-          const fileList = tempDiv.querySelectorAll('#older-files li');
-          const count = fileList.length;
-          if (count > 0) {
-            document.getElementById('older-link').textContent = `View Older Reports (${count} available)`;
-          }
-        })
-        .catch(error => console.error('Error fetching older.html:', error));
-    });
-  </script>
+mockHistory.forEach(entry => {
+  const row = historyBody.insertRow();
+  row.innerHTML = `
+    <td>${entry.date}</td>
+    <td><a href="${entry.file}" download>Download</a></td>
+  `;
+});
+</script>
+
 </body>
 </html>
