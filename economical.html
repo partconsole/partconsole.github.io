@@ -111,75 +111,78 @@
 </head>
 
 <body>
-  <div id="brand-menu" onclick="goHome()">economical @ partconsole.com</div>
-  
-  <div class="content-container">
-    
-    <div class="boxed-title">Exchange Rate Report (USD Base)</div>
+<div id="brand-menu" onclick="goHome()">economical @ partconsole.com</div>
 
-    <div id="explanation">
-      <p><strong>Interpretation:</strong> Positive = USD Strengthened, Negative = USD Weakened</p>
-      <p><strong>Formula:</strong> (Today's Rate − Past Rate) ÷ Past Rate × 100</p>
-    </div>
+<div class="content-container">
 
-    <div style="margin-bottom: 1rem;">
-      <label for="compare-start-date"><strong>Compare Start Date:</strong></label>
-      <input type="date" id="compare-start-date" style="margin-left:5px;">
-      <label for="compare-end-date" style="margin-left:10px;"><strong>Compare End Date:</strong></label>
-      <input type="date" id="compare-end-date" style="margin-left:5px;">
-      <button id="compare-btn" style="margin-left:10px;">Compare</button>
-    </div>
+  <div class="boxed-title">Exchange Rate Report (USD Base)</div>
 
-    <table id="report-table">
-      <thead>
-        <tr>
-          <th>Currency</th>
-          <th>Today's Rate</th>
-          <th>% Conversion</th>
-          <th>Past Rate</th>
-          <th>FX Power Gap (%)</th>
-          <th>USD Movement</th>
-        </tr>
-      </thead>
-      <tbody id="report-body"></tbody>
-    </table>
-
-    <p id="last-updated" style="font-size: 0.8rem; color: gray; margin-top: 10px;">Last Updated: Loading...</p>
-
-    <div style="margin-top: 5rem;"></div>
-
-    <div class="boxed-title">Historical USD Movement (Quarterly Since 2020)</div>
-
-    <div id="metric-definition">
-      <p><strong>Metric:</strong> % change of USD purchasing power relative to each currency over time (higher % = USD stronger).</p>
-    </div>
-
-    <div style="margin-bottom: 1rem;">
-      <label for="start-date"><strong>Start Date:</strong></label>
-      <input type="date" id="start-date" style="margin-left:5px;">
-      <label for="end-date" style="margin-left:10px;"><strong>End Date:</strong></label>
-      <input type="date" id="end-date" style="margin-left:5px;">
-      <button id="update-historical-btn" style="margin-left:10px;">Update Chart</button>
-      <button id="reset-historical-btn" style="margin-left:10px;">Reset</button>
-    </div>
-
-    <canvas id="historical-chart" width="800" height="300"></canvas>
-    <div id="historical-legend">
-      📈 Line colors = EUR, JPY, KRW, CNY relative to USD
-    </div>
+  <div id="explanation">
+    <p><strong>Interpretation:</strong> Positive = USD Strengthened, Negative = USD Weakened</p>
+    <p><strong>Formula:</strong> (Today's Rate − Past Rate) ÷ Past Rate × 100</p>
   </div>
 
-  <div id="fixed-buttons">
-    <button id="export-btn">Export as Excel</button>
-    <button id="return-btn">Return to Hub</button>
+  <div style="margin-bottom: 1rem;">
+    <label for="compare-start-date"><strong>Compare Start Date:</strong></label>
+    <input type="date" id="compare-start-date" style="margin-left:5px;">
+    <label for="compare-end-date" style="margin-left:10px;"><strong>Compare End Date:</strong></label>
+    <input type="date" id="compare-end-date" style="margin-left:5px;">
+    <button id="compare-btn" style="margin-left:10px;">Compare</button>
   </div>
 
-  <footer>&copy; partconsole.com</footer>
+  <p id="report-date-time" style="font-size: 0.8rem; color: gray; margin-top: 10px;">Loading current date and time...</p>
+
+  <table id="report-table">
+    <thead>
+    <tr>
+      <th>Currency</th>
+      <th>Today's Rate</th>
+      <th>% Conversion</th>
+      <th>Past Rate</th>
+      <th>FX Power Gap (%)</th>
+      <th>USD Movement</th>
+    </tr>
+    </thead>
+    <tbody id="report-body"></tbody>
+  </table>
+
+  <p id="last-updated" style="font-size: 0.8rem; color: gray; margin-top: 10px;">Last Updated: Loading...</p>
+
+  <div style="margin-top: 5rem;"></div>
+
+  <div class="boxed-title">Historical USD Movement (Quarterly Since 2020)</div>
+
+  <div id="metric-definition">
+    <p><strong>Metric:</strong> % change of USD purchasing power relative to each currency over time (higher % = USD stronger).</p>
+  </div>
+
+  <div style="margin-bottom: 1rem;">
+    <label for="start-date"><strong>Start Date:</strong></label>
+    <input type="date" id="start-date" style="margin-left:5px;">
+    <label for="end-date" style="margin-left:10px;"><strong>End Date:</strong></label>
+    <input type="date" id="end-date" style="margin-left:5px;">
+    <button id="update-historical-btn" style="margin-left:10px;">Update Chart</button>
+    <button id="reset-historical-btn" style="margin-left:10px;">Reset</button>
+  </div>
+
+  <canvas id="historical-chart" width="800" height="300"></canvas>
+  <div id="historical-legend">
+    📈 Line colors = EUR, JPY, KRW, CNY relative to USD
+  </div>
+
+</div>
+
+<div id="fixed-buttons">
+  <button id="export-btn">Export as Excel</button>
+  <button id="return-btn">Return to Hub</button>
+</div>
+
+<footer>&copy; partconsole.com</footer>
 
 <script>
 const currencies = ['EUR', 'JPY', 'KRW', 'CNY'];
 const currencyNames = { EUR: "Euro", JPY: "Japanese Yen", KRW: "South Korean Won", CNY: "Chinese Yuan" };
-let todayRates = {}; let pastRates = {}; let historicalChart;
+let todayRates = {}; let historicalChart;
 
 function goHome() { window.location.href = "main.html"; }
 
@@ -247,7 +250,6 @@ function plotHistoricalChart(data) {
     borderColor: getColor(cur),
     fill: false
   }));
-
   if (historicalChart) historicalChart.destroy();
   historicalChart = new Chart(ctx, { type: 'line', data: { labels, datasets }, options: { responsive: true } });
 }
