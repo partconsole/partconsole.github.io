@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>History - partconsole.com</title>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     body {
       font-family: monospace;
@@ -32,37 +31,6 @@
     tr:nth-child(even) {
       background-color: #f9f9f9;
     }
-    button {
-      font-family: monospace;
-      font-size: 0.9rem;
-      padding: 6px 10px;
-      border: 1px solid black;
-      background-color: black;
-      color: white;
-      cursor: pointer;
-      border-radius: 0;
-      margin-top: 1rem;
-    }
-    #fixed-buttons {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-    }
-    #fixed-buttons button {
-      margin-bottom: 10px;
-    }
-    footer {
-      position: absolute;
-      bottom: 10px;
-      left: 0;
-      width: 100%;
-      text-align: center;
-      font-size: 0.9rem;
-      color: #888;
-    }
     #brand-menu {
       display: inline-block;
       padding: 0.6rem 1.2rem;
@@ -80,57 +48,133 @@
       background-color: black;
       color: white;
     }
+    #fixed-buttons {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    #fixed-buttons button {
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+      padding: 6px 10px;
+      border: 1px solid black;
+      background-color: black;
+      color: white;
+      cursor: pointer;
+      font-family: inherit;
+      border-radius: 0;
+    }
+    #export-btn {
+      font-size: 0.9rem;
+      padding: 6px 10px;
+      border: 1px solid black;
+      background-color: black;
+      color: white;
+      cursor: pointer;
+      font-family: inherit;
+      border-radius: 0;
+      margin-top: 20px;
+    }
+    footer {
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #888;
+    }
+    tr:hover {
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
   </style>
 </head>
+
 <body>
+  <div id="brand-menu" onclick="goHome()">economical @ partconsole.com</div>
 
-<div id="brand-menu" onclick="goHome()">economical @ partconsole.com</div>
+  <div class="content-container">
+    <h2>Recent Exchange Reports (5 latest)</h2>
 
-<div class="content-container">
-  <h2>Saved Historical Exchange Reports</h2>
+    <table id="history-table">
+      <thead>
+        <tr>
+          <th>Report</th>
+          <th>Week</th>
+          <th>Export</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Reports will be dynamically loaded here -->
+      </tbody>
+    </table>
 
-  <table id="history-table">
-    <thead>
-      <tr>
-        <th>Date Saved</th>
-        <th>Download</th>
-      </tr>
-    </thead>
-    <tbody id="history-body">
-      <!-- Historical entries dynamically inserted here -->
-    </tbody>
-  </table>
+    <h2 style="margin-top:3rem;">Older Reports</h2>
 
-  <button onclick="window.location.href='older.html'">View Older Reports</button>
-</div>
+    <table id="older-table">
+      <thead>
+        <tr>
+          <th>Report</th>
+          <th>Week</th>
+          <th>Export</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Older reports dynamically -->
+      </tbody>
+    </table>
 
-<div id="fixed-buttons">
-  <button onclick="window.location.href='economical.html'">Return to Economical</button>
-</div>
+    <button id="export-btn">Export All</button>
+  </div>
 
-<footer>&copy; partconsole.com</footer>
+  <div id="fixed-buttons">
+    <button id="return-btn">Return to Economical</button>
+  </div>
+
+  <footer>&copy; partconsole.com</footer>
 
 <script>
 function goHome() {
-  window.location.href = "main.html";
+  window.location.href = "main.html"; // adjust to your main hub if different
 }
 
-// Example mock loading history
-const historyBody = document.getElementById("history-body");
-const mockHistory = [
-  { date: "04/24/2025", file: "history_2025_04_24.xlsx" },
-  { date: "04/17/2025", file: "history_2025_04_17.xlsx" },
-  { date: "04/10/2025", file: "history_2025_04_10.xlsx" },
-  { date: "04/03/2025", file: "history_2025_04_03.xlsx" },
-  { date: "03/27/2025", file: "history_2025_03_27.xlsx" },
+document.getElementById("return-btn").onclick = function() {
+  window.location.href = "economical.html"; // returning to the main economical page
+};
+
+document.getElementById("export-btn").onclick = function() {
+  alert('Export all functionality coming soon!');
+};
+
+// Dummy sample data to simulate reports
+const reports = [
+  { name: "April 22, 2025", week: "Week17 2025" },
+  { name: "April 15, 2025", week: "Week16 2025" },
+  { name: "April 8, 2025", week: "Week15 2025" },
+  { name: "April 1, 2025", week: "Week14 2025" },
+  { name: "March 25, 2025", week: "Week13 2025" },
+  { name: "March 18, 2025", week: "Week12 2025" }
 ];
 
-mockHistory.forEach(entry => {
-  const row = historyBody.insertRow();
+// Fill tables
+const historyTable = document.getElementById("history-table").querySelector("tbody");
+const olderTable = document.getElementById("older-table").querySelector("tbody");
+
+reports.forEach((report, index) => {
+  const row = document.createElement("tr");
   row.innerHTML = `
-    <td>${entry.date}</td>
-    <td><a href="${entry.file}" download>Download</a></td>
+    <td>${report.name}</td>
+    <td>${report.week}</td>
+    <td><button style="border:1px solid black;padding:4px 8px;cursor:pointer;">Export</button></td>
   `;
+  if (index < 5) {
+    historyTable.appendChild(row);
+  } else {
+    olderTable.appendChild(row);
+  }
 });
 </script>
 
