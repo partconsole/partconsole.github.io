@@ -2,42 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Exchange Rate Report - partconsole.com</title>
+  <title>Economical - partconsole.com</title>
   <style>
     body {
       font-family: monospace;
+      background-color: white;
+      color: black;
       padding: 2rem;
       position: relative;
       min-height: 100vh;
-      background-color: white;
-      color: black;
       text-align: center;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 1rem;
     }
+
     th, td {
       border: 1px solid black;
       padding: 8px;
       text-align: center;
       vertical-align: middle;
     }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
     input[type="date"], button {
       font-family: monospace;
       font-size: 0.8rem;
     }
-    #export-btn, #return-btn, #history-btn {
-      font-size: 0.9rem;
-      padding: 6px 10px;
-      border: 1px solid black;
-      background-color: black;
-      color: white;
-      cursor: pointer;
-      font-family: inherit;
-      margin: 10px;
-    }
+
     #fixed-buttons {
       position: fixed;
       bottom: 20px;
@@ -46,9 +44,31 @@
       flex-direction: column;
       align-items: flex-end;
     }
+
     #fixed-buttons button {
       margin-bottom: 10px;
+      font-size: 0.9rem;
+      padding: 6px 10px;
+      border: 1px solid black;
+      background-color: black;
+      color: white;
+      cursor: pointer;
+      font-family: inherit;
+      border-radius: 0; /* Sharp edges */
     }
+
+    #history-btn {
+      font-size: 0.9rem;
+      padding: 6px 10px;
+      border: 1px solid black;
+      background-color: black;
+      color: white;
+      cursor: pointer;
+      font-family: inherit;
+      border-radius: 0;
+      margin-top: 20px;
+    }
+
     footer {
       position: absolute;
       bottom: 10px;
@@ -58,12 +78,7 @@
       font-size: 0.9rem;
       color: #888;
     }
-    h1 {
-      margin-bottom: 4rem;
-    }
-    h2 {
-      margin-top: 0;
-    }
+
     #explanation {
       font-size: 0.8rem;
       color: gray;
@@ -73,6 +88,16 @@
       margin-right: auto;
       text-align: left;
     }
+
+    #chart-container {
+      margin-top: 3rem;
+    }
+
+    .small-move {
+      font-size: 0.8rem;
+      color: gray;
+    }
+
     tr:hover {
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
@@ -82,23 +107,24 @@
 <body>
   <h1>economical @ partconsole.com</h1>
   <h2>Exchange Rate Report (USD Base)</h2>
+
+  <div style="margin-bottom: 1rem;">
+    <label for="compare-date"><strong>Choose Date to Compare:</strong></label>
+    <input type="date" id="compare-date" style="margin-left: 5px;">
+    <button id="compare-btn" style="margin-left: 5px;">Compare</button>
+  </div>
+
   <p id="report-date-time">Loading current date and time...</p>
 
   <table id="report-table">
     <thead>
       <tr>
-        <th rowspan="2">Currency</th>
-        <th rowspan="2">Today's Rate</th>
-        <th rowspan="2">% Conversion</th>
-        <th colspan="2">FX Power Gap</th>
-        <th rowspan="2">USD Movement</th>
-      </tr>
-      <tr>
+        <th>Currency</th>
+        <th>Today's Rate</th>
+        <th>% Conversion</th>
         <th>Past Rate</th>
-        <th>Gap (%) 
-          <input type="date" id="compare-date" style="margin-left:5px;">
-          <button id="compare-btn" style="margin-left:5px;">Compare</button>
-        </th>
+        <th>FX Power Gap (%) + Strength</th>
+        <th>USD Movement</th>
       </tr>
     </thead>
     <tbody id="report-body">
@@ -107,6 +133,9 @@
   </table>
 
   <p id="last-updated" style="font-size: 0.8rem; color: gray; margin-top: 10px;">Last Updated: Loading...</p>
+
+  <!-- Chart will go here -->
+  <div id="chart-container"></div>
 
   <!-- Explanation -->
   <div id="explanation">
@@ -118,7 +147,7 @@
     - A <span style="color:red;">negative</span> gap means USD weakened.</p>
   </div>
 
-  <!-- Buttons -->
+  <!-- History Button -->
   <button id="history-btn">View History</button>
 
   <div id="fixed-buttons">
@@ -204,17 +233,30 @@
         const row = pastCell?.parentNode;
 
         if (pastCell && gapCell && interpretCell && todayRate && pastRate) {
-          pastCell.textContent = pastRate;
+          pastCell.textContent = pastRate.toFixed(4);
 
           const gapPercent = ((todayRate - pastRate) / pastRate * 100).toFixed(2);
-          gapCell.textContent = (gapPercent > 0 ? "+" : "") + gapPercent + "%";
+          let strength = "";
 
-          if (gapPercent > 0) {
+          const gapNum = parseFloat(gapPercent);
+          if (Math.abs(gapNum) < 0.5) {
+            strength = "<span class='small-move'>(flat)</span>";
+          } else if (Math.abs(gapNum) < 2.0) {
+            strength = "<span class='small-move'>(small)</span>";
+          } else if (Math.abs(gapNum) < 5.0) {
+            strength = "<span class='small-move'>(moderate)</span>";
+          } else {
+            strength = "<span class='small-move'>(big)</span>";
+          }
+
+          gapCell.innerHTML = `${gapNum > 0 ? "+" : ""}${gapPercent}% ${strength}`;
+
+          if (gapNum > 0) {
             gapCell.style.color = "green";
             interpretCell.textContent = "▲";
             interpretCell.style.color = "green";
             row.style.backgroundColor = "#d4f4d2"; // light green
-          } else if (gapPercent < 0) {
+          } else if (gapNum < 0) {
             gapCell.style.color = "red";
             interpretCell.textContent = "▼";
             interpretCell.style.color = "red";
