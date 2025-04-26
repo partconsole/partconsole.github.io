@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>Economical - partconsole.com</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    /* SAME STYLES AS BEFORE (including fixed buttons, footer, chart-container) */
     body {
       font-family: monospace;
       background-color: white;
@@ -13,29 +16,24 @@
       min-height: 100vh;
       text-align: center;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 1rem;
     }
-
     th, td {
       border: 1px solid black;
       padding: 8px;
       text-align: center;
       vertical-align: middle;
     }
-
     tr:nth-child(even) {
       background-color: #f9f9f9;
     }
-
     input[type="date"], button {
       font-family: monospace;
       font-size: 0.8rem;
     }
-
     #fixed-buttons {
       position: fixed;
       bottom: 20px;
@@ -44,7 +42,6 @@
       flex-direction: column;
       align-items: flex-end;
     }
-
     #fixed-buttons button {
       margin-bottom: 10px;
       font-size: 0.9rem;
@@ -54,9 +51,8 @@
       color: white;
       cursor: pointer;
       font-family: inherit;
-      border-radius: 0; /* Sharp edges */
+      border-radius: 0;
     }
-
     #history-btn {
       font-size: 0.9rem;
       padding: 6px 10px;
@@ -68,7 +64,6 @@
       border-radius: 0;
       margin-top: 20px;
     }
-
     footer {
       position: absolute;
       bottom: 10px;
@@ -78,7 +73,6 @@
       font-size: 0.9rem;
       color: #888;
     }
-
     #explanation {
       font-size: 0.8rem;
       color: gray;
@@ -88,16 +82,18 @@
       margin-right: auto;
       text-align: left;
     }
-
-    #chart-container {
-      margin-top: 3rem;
-    }
-
     .small-move {
       font-size: 0.8rem;
       color: gray;
     }
-
+    #chart-container {
+      margin-top: 3rem;
+    }
+    #legend {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #555;
+    }
     tr:hover {
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
@@ -112,6 +108,7 @@
     <label for="compare-date"><strong>Choose Date to Compare:</strong></label>
     <input type="date" id="compare-date" style="margin-left: 5px;">
     <button id="compare-btn" style="margin-left: 5px;">Compare</button>
+    <button id="sort-btn" style="margin-left: 5px;">Sort by Movement</button>
   </div>
 
   <p id="report-date-time">Loading current date and time...</p>
@@ -134,10 +131,14 @@
 
   <p id="last-updated" style="font-size: 0.8rem; color: gray; margin-top: 10px;">Last Updated: Loading...</p>
 
-  <!-- Chart will go here -->
-  <div id="chart-container"></div>
+  <!-- Chart -->
+  <div id="chart-container">
+    <canvas id="movement-chart" width="800" height="400"></canvas>
+    <div id="legend">
+      📈 Green = USD Strengthened | 📉 Red = USD Weakened | ➖ Gray = No Change
+    </div>
+  </div>
 
-  <!-- Explanation -->
   <div id="explanation">
     <p><strong>FX Power Gap Formula:</strong><br>
     (Today's Rate − Past Rate) ÷ Past Rate × 100</p>
@@ -147,7 +148,6 @@
     - A <span style="color:red;">negative</span> gap means USD weakened.</p>
   </div>
 
-  <!-- History Button -->
   <button id="history-btn">View History</button>
 
   <div id="fixed-buttons">
@@ -157,153 +157,199 @@
 
   <footer>&copy; partconsole.com</footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+  const currencies = ['EUR', 'JPY', 'KRW', 'CNY'];
+  const currencyNames = {
+    EUR: "Euro",
+    JPY: "Japanese Yen",
+    KRW: "South Korean Won",
+    CNY: "Chinese Yuan"
+  };
 
-  <script>
-    const currencies = ['EUR', 'JPY', 'KRW', 'CNY'];
-    const currencyNames = {
-      EUR: "Euro",
-      JPY: "Japanese Yen",
-      KRW: "South Korean Won",
-      CNY: "Chinese Yuan"
-    };
+  let todayRates = {};
+  let pastRates = {};
+  let gapData = [];
+  let movementChart;
 
-    async function fetchExchangeRates() {
-      try {
-        const response = await fetch('https://api.frankfurter.app/latest?from=USD');
-        const data = await response.json();
-        updateTable(data);
-        updateLastUpdated();
-      } catch (error) {
-        console.error('Error fetching exchange rates:', error);
+  async function fetchExchangeRates() {
+    try {
+      const response = await fetch('https://api.frankfurter.app/latest?from=USD');
+      const data = await response.json();
+      todayRates = data.rates;
+      updateTable(todayRates);
+      updateLastUpdated();
+    } catch (error) {
+      console.error('Error fetching exchange rates:', error);
+    }
+  }
+
+  function updateTable(data) {
+    const tbody = document.getElementById("report-body");
+    tbody.innerHTML = "";
+
+    currencies.forEach(currency => {
+      const rate = data[currency];
+      if (rate !== undefined) {
+        let percentConversion = ((rate - 1) * 100).toFixed(2);
+        percentConversion = percentConversion > 0 ? `+${percentConversion}%` : `${percentConversion}%`;
+
+        const row = tbody.insertRow();
+        row.innerHTML = `
+          <td>${currency} (${currencyNames[currency]})</td>
+          <td>${rate}</td>
+          <td>${percentConversion}</td>
+          <td id="past-${currency}">N/A</td>
+          <td id="gap-${currency}">N/A</td>
+          <td id="interpret-${currency}">N/A</td>
+        `;
       }
+    });
+
+    document.getElementById("compare-btn").onclick = compareFXGap;
+    document.getElementById("sort-btn").onclick = sortByMovement;
+  }
+
+  async function compareFXGap() {
+    const selectedDate = document.getElementById("compare-date").value;
+    if (!selectedDate) {
+      alert("Please select a date!");
+      return;
     }
 
-    function updateTable(data) {
-      const tbody = document.getElementById("report-body");
-      tbody.innerHTML = "";
+    try {
+      const response = await fetch(`https://api.frankfurter.app/${selectedDate}?from=USD`);
+      const data = await response.json();
+      pastRates = data.rates;
+      updateFXGap(todayRates, pastRates);
+      updateLastUpdated();
+    } catch (error) {
+      console.error('Error fetching comparison data:', error);
+    }
+  }
 
-      currencies.forEach(currency => {
-        const rate = data.rates[currency];
-        if (rate !== undefined) {
-          let percentConversion = ((rate - 1) * 100).toFixed(2);
-          percentConversion = percentConversion > 0 ? `+${percentConversion}%` : `${percentConversion}%`;
+  function updateFXGap(todayRates, pastRates) {
+    gapData = [];
 
-          const row = tbody.insertRow();
-          row.innerHTML = `
-            <td>${currency} (${currencyNames[currency]})</td>
-            <td>${rate}</td>
-            <td>${percentConversion}</td>
-            <td id="past-${currency}">N/A</td>
-            <td id="gap-${currency}">N/A</td>
-            <td id="interpret-${currency}">N/A</td>
-          `;
+    currencies.forEach(currency => {
+      const todayRate = todayRates[currency];
+      const pastRate = pastRates[currency];
+      const pastCell = document.getElementById(`past-${currency}`);
+      const gapCell = document.getElementById(`gap-${currency}`);
+      const interpretCell = document.getElementById(`interpret-${currency}`);
+      const row = pastCell?.parentNode;
+
+      if (pastCell && gapCell && interpretCell && todayRate && pastRate) {
+        pastCell.textContent = pastRate.toFixed(4);
+
+        const gapPercent = ((todayRate - pastRate) / pastRate * 100).toFixed(2);
+        let strength = "";
+
+        const gapNum = parseFloat(gapPercent);
+        if (Math.abs(gapNum) < 0.5) {
+          strength = "<span class='small-move'>(flat)</span>";
+        } else if (Math.abs(gapNum) < 2.0) {
+          strength = "<span class='small-move'>(small)</span>";
+        } else if (Math.abs(gapNum) < 5.0) {
+          strength = "<span class='small-move'>(moderate)</span>";
+        } else {
+          strength = "<span class='small-move'>(big)</span>";
         }
-      });
 
-      document.getElementById("compare-btn").onclick = compareFXGap;
+        gapCell.innerHTML = `${gapNum > 0 ? "+" : ""}${gapPercent}% ${strength}`;
+
+        if (gapNum > 0) {
+          gapCell.style.color = "green";
+          interpretCell.textContent = "▲";
+          interpretCell.style.color = "green";
+          row.style.backgroundColor = "#d4f4d2";
+        } else if (gapNum < 0) {
+          gapCell.style.color = "red";
+          interpretCell.textContent = "▼";
+          interpretCell.style.color = "red";
+          row.style.backgroundColor = "#f9d6d5";
+        } else {
+          gapCell.style.color = "gray";
+          interpretCell.textContent = "–";
+          interpretCell.style.color = "gray";
+          row.style.backgroundColor = "#f0f0f0";
+        }
+
+        gapData.push({ currency, gap: gapNum });
+      }
+    });
+
+    updateChart(gapData);
+  }
+
+  function updateChart(data) {
+    const ctx = document.getElementById('movement-chart').getContext('2d');
+
+    if (movementChart) {
+      movementChart.destroy();
     }
 
-    async function compareFXGap() {
-      const selectedDate = document.getElementById("compare-date").value;
-      if (!selectedDate) {
-        alert("Please select a date!");
-        return;
-      }
-
-      try {
-        const todayResponse = await fetch('https://api.frankfurter.app/latest?from=USD');
-        const todayData = await todayResponse.json();
-        const pastResponse = await fetch(`https://api.frankfurter.app/${selectedDate}?from=USD`);
-        const pastData = await pastResponse.json();
-        updateFXGap(todayData.rates, pastData.rates);
-        updateLastUpdated();
-      } catch (error) {
-        console.error('Error fetching comparison data:', error);
-      }
-    }
-
-    function updateFXGap(todayRates, pastRates) {
-      currencies.forEach(currency => {
-        const todayRate = todayRates[currency];
-        const pastRate = pastRates[currency];
-        const pastCell = document.getElementById(`past-${currency}`);
-        const gapCell = document.getElementById(`gap-${currency}`);
-        const interpretCell = document.getElementById(`interpret-${currency}`);
-        const row = pastCell?.parentNode;
-
-        if (pastCell && gapCell && interpretCell && todayRate && pastRate) {
-          pastCell.textContent = pastRate.toFixed(4);
-
-          const gapPercent = ((todayRate - pastRate) / pastRate * 100).toFixed(2);
-          let strength = "";
-
-          const gapNum = parseFloat(gapPercent);
-          if (Math.abs(gapNum) < 0.5) {
-            strength = "<span class='small-move'>(flat)</span>";
-          } else if (Math.abs(gapNum) < 2.0) {
-            strength = "<span class='small-move'>(small)</span>";
-          } else if (Math.abs(gapNum) < 5.0) {
-            strength = "<span class='small-move'>(moderate)</span>";
-          } else {
-            strength = "<span class='small-move'>(big)</span>";
-          }
-
-          gapCell.innerHTML = `${gapNum > 0 ? "+" : ""}${gapPercent}% ${strength}`;
-
-          if (gapNum > 0) {
-            gapCell.style.color = "green";
-            interpretCell.textContent = "▲";
-            interpretCell.style.color = "green";
-            row.style.backgroundColor = "#d4f4d2"; // light green
-          } else if (gapNum < 0) {
-            gapCell.style.color = "red";
-            interpretCell.textContent = "▼";
-            interpretCell.style.color = "red";
-            row.style.backgroundColor = "#f9d6d5"; // light red
-          } else {
-            gapCell.style.color = "gray";
-            interpretCell.textContent = "–";
-            interpretCell.style.color = "gray";
-            row.style.backgroundColor = "#f0f0f0"; // light gray
+    movementChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.currency),
+        datasets: [{
+          label: 'USD Movement %',
+          data: data.map(d => d.gap),
+          backgroundColor: data.map(d => 
+            d.gap > 0 ? 'green' : d.gap < 0 ? 'red' : 'gray'
+          ),
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        scales: {
+          x: {
+            beginAtZero: true
           }
         }
-      });
-    }
+      }
+    });
+  }
 
-    function updateLastUpdated() {
-      const now = new Date();
-      const dateStr = now.toLocaleDateString();
-      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      document.getElementById('last-updated').innerText = `Last Updated: ${dateStr} ${timeStr}`;
-    }
+  function sortByMovement() {
+    gapData.sort((a, b) => Math.abs(b.gap) - Math.abs(a.gap));
+    updateChart(gapData);
+    alert("Sorted by biggest USD movements!");
+  }
 
-    document.getElementById("export-btn").onclick = function () {
-      const table = document.getElementById("report-table");
-      const workbook = XLSX.utils.table_to_book(table, { sheet: "Exchange Report" });
-      XLSX.writeFile(workbook, "exchange_rate_report.xlsx");
-    };
+  function updateLastUpdated() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('last-updated').innerText = `Last Updated: ${dateStr} ${timeStr}`;
+  }
 
-    document.getElementById("return-btn").onclick = function () {
-      window.location.href = "main.html";
-    };
+  document.getElementById("export-btn").onclick = function () {
+    const table = document.getElementById("report-table");
+    const workbook = XLSX.utils.table_to_book(table, { sheet: "Exchange Report" });
+    XLSX.writeFile(workbook, "exchange_rate_report.xlsx");
+  };
 
-    document.getElementById("history-btn").onclick = function () {
-      window.location.href = "history.html";
-    };
+  document.getElementById("return-btn").onclick = function () {
+    window.location.href = "main.html";
+  };
 
-    function updateDateTime() {
-      const now = new Date();
-      const dateStr = now.toLocaleDateString();
-      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      document.getElementById('report-date-time').innerText = `Date: ${dateStr} | Time: ${timeStr}`;
-    }
+  document.getElementById("history-btn").onclick = function () {
+    window.location.href = "history.html";
+  };
 
-    setInterval(updateDateTime, 60000);
-    updateDateTime();
+  function updateDateTime() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('report-date-time').innerText = `Date: ${dateStr} | Time: ${timeStr}`;
+  }
 
-    fetchExchangeRates();
-    setInterval(fetchExchangeRates, 300000);
-  </script>
+  setInterval(updateDateTime, 60000);
+  updateDateTime();
+  fetchExchangeRates();
+  setInterval(fetchExchangeRates, 300000);
+</script>
+
 </body>
 </html>
