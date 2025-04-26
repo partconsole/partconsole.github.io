@@ -3,41 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <title>Older Reports - partconsole.com</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     body {
       font-family: monospace;
       background-color: white;
       color: black;
       padding: 2rem;
-      text-align: center;
-      min-height: 100vh;
       position: relative;
+      min-height: 100vh;
+      text-align: center;
     }
-
-    .older-container {
+    .content-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    #fixed-buttons {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
-      align-items: center;
-      margin-bottom: 6rem;
+      align-items: flex-end;
     }
-
-    .report-card {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: 1px solid black;
-      padding: 1rem 2rem;
-      width: 500px;
-      background-color: #f2f2f2;
-    }
-
-    .report-info {
-      text-align: left;
-      font-size: 1.1rem;
-    }
-
-    button, .export-btn, .return-btn {
+    #fixed-buttons button, #return-btn {
+      margin-bottom: 10px;
       font-size: 0.9rem;
       padding: 6px 10px;
       border: 1px solid black;
@@ -47,17 +51,6 @@
       font-family: inherit;
       border-radius: 0;
     }
-
-    .return-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-    }
-
-    .highlight-top {
-      background-color: #ffffcc;
-    }
-
     footer {
       position: absolute;
       bottom: 10px;
@@ -67,83 +60,83 @@
       font-size: 0.9rem;
       color: #888;
     }
-
-    #older-files {
-      display: none;
+    tr:hover {
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    #brand-menu {
+      display: inline-block;
+      padding: 0.6rem 1.2rem;
+      border: 2px solid black;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: white;
+      color: black;
+      margin-bottom: 2rem;
+      transition: all 0.3s ease;
+    }
+    #brand-menu:hover {
+      background-color: black;
+      color: white;
     }
   </style>
 </head>
 
 <body>
-  <h1>Older Exchange Rate Reports</h1>
-  <h2>Archived Reports</h2>
+  <div id="brand-menu" onclick="goHome()">older @ partconsole.com</div>
 
-  <div class="older-container" id="older-container"></div>
+  <div class="content-container">
+    <h2>Older Exchange Rate Reports</h2>
 
-  <!-- Hidden file list -->
-  <ul id="older-files">
-    <li>exchange_rate_2025-03-25.xlsx</li>
-    <li>exchange_rate_2025-03-18.xlsx</li>
-    <li>exchange_rate_2025-03-11.xlsx</li>
-    <!-- Add more files here -->
-  </ul>
+    <table id="older-reports-table">
+      <thead>
+        <tr>
+          <th>Date/Month/Year - Week#</th>
+          <th>Download</th>
+        </tr>
+      </thead>
+      <tbody id="older-reports-body">
+        <!-- Older report entries go here -->
+      </tbody>
+    </table>
 
-  <button class="return-btn" onclick="window.location.href='history.html'">Return to History</button>
+    <button id="return-btn">Return to History</button>
+  </div>
 
   <footer>&copy; partconsole.com</footer>
 
   <script>
-    window.addEventListener('DOMContentLoaded', () => {
-      const fileList = Array.from(document.querySelectorAll('#older-files li'));
-      const container = document.getElementById('older-container');
+    const olderReports = [
+      { date: "01/02/2024 - Week1 2024", file: "report_week1_2024.xlsx" },
+      { date: "08/02/2024 - Week2 2024", file: "report_week2_2024.xlsx" },
+      { date: "15/02/2024 - Week3 2024", file: "report_week3_2024.xlsx" },
+      { date: "22/02/2024 - Week4 2024", file: "report_week4_2024.xlsx" },
+      { date: "29/02/2024 - Week5 2024", file: "report_week5_2024.xlsx" }
+    ];
 
-      const filesWithDates = fileList.map(file => {
-        const fileName = file.textContent.trim();
-        const dateMatch = fileName.match(/exchange_rate_(\d{4}-\d{2}-\d{2})\.xlsx/);
-        if (dateMatch) {
-          const dateStr = dateMatch[1];
-          const dateObj = new Date(dateStr);
-          return { fileName, dateObj };
-        }
-        return null;
-      }).filter(item => item !== null);
+    function populateOlderReports() {
+      const tbody = document.getElementById("older-reports-body");
+      tbody.innerHTML = "";
 
-      filesWithDates.sort((a, b) => b.dateObj - a.dateObj);
-
-      filesWithDates.forEach((item, index) => {
-        const { fileName, dateObj } = item;
-        const day = String(dateObj.getDate()).padStart(2, '0');
-        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const year = dateObj.getFullYear();
-        const formattedDate = `${day}/${month}/${year}`;
-        const weekNumber = getISOWeekNumber(dateObj);
-        const weekInfo = `Week${weekNumber}/${year}`;
-
-        const card = document.createElement('div');
-        card.className = 'report-card';
-        if (index === 0) {
-          card.classList.add('highlight-top');
-        }
-
-        card.innerHTML = `
-          <div class="report-info">${formattedDate} - ${weekInfo}</div>
-          <a href="older/${fileName}" download>
-            <button class="export-btn">Download</button>
-          </a>
+      olderReports.forEach(report => {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+          <td>${report.date}</td>
+          <td><a href="${report.file}" download style="color: blue; text-decoration: underline;">Download</a></td>
         `;
-
-        container.appendChild(card);
       });
-    });
-
-    function getISOWeekNumber(date) {
-      const target = new Date(date.valueOf());
-      const dayNr = (date.getDay() + 6) % 7;
-      target.setDate(target.getDate() - dayNr + 3);
-      const firstThursday = new Date(target.getFullYear(), 0, 4);
-      const weekNumber = 1 + Math.round(((target.getTime() - firstThursday.getTime()) / 86400000 - 3 + ((firstThursday.getDay() + 6) % 7)) / 7);
-      return weekNumber;
     }
+
+    document.getElementById("return-btn").onclick = function () {
+      window.location.href = "history.html";
+    };
+
+    function goHome() {
+      window.location.href = "main.html";
+    }
+
+    populateOlderReports();
   </script>
 </body>
 </html>
