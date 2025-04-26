@@ -10,6 +10,8 @@
       color: black;
       padding: 2rem;
       text-align: center;
+      min-height: 100vh;
+      position: relative;
     }
 
     .history-container {
@@ -17,7 +19,7 @@
       flex-direction: column;
       gap: 1.5rem;
       align-items: center;
-      margin-bottom: 4rem;
+      margin-bottom: 6rem;
     }
 
     .report-card {
@@ -55,10 +57,10 @@
       cursor: pointer;
     }
 
-    #return-btn {
+    .return-btn {
       position: fixed;
       bottom: 20px;
-      left: 20px;
+      right: 20px;
       font-size: 0.9rem;
       padding: 6px 10px;
       border: 1px solid black;
@@ -69,9 +71,17 @@
       border-radius: 6px;
     }
 
+    .highlight-top {
+      background-color: #ffffcc;
+    }
+
     footer {
-      margin-top: 4rem;
-      color: gray;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #888;
     }
   </style>
 </head>
@@ -80,9 +90,9 @@
   <h1>Exchange Rate History</h1>
   <h2>Latest 5 Reports</h2>
 
-  <div class="history-container">
-    <!-- Latest reports -->
-    <div class="report-card">
+  <div class="history-container" id="history-container">
+    <!-- Report cards manually listed -->
+    <div class="report-card highlight-top">
       <div class="report-info">29/04/2025 - Week18/2025</div>
       <a href="history/exchange_rate_2025-04-29.xlsx" download>
         <button class="export-btn">Download</button>
@@ -118,15 +128,13 @@
     </div>
   </div>
 
-  <!-- Link to Older Reports -->
   <div>
     <a href="older.html" class="older-link" id="older-link">View Older Reports</a>
   </div>
 
-  <!-- Return to Economical -->
-  <button id="return-btn" onclick="window.location.href='economical.html'">Return to Economical</button>
+  <button class="return-btn" onclick="window.location.href='economical.html'">Return to Economical</button>
 
-  <footer>&copy; partconsole.com</footer>
+  <footer>© partconsole.com</footer>
 
   <script>
     window.addEventListener('DOMContentLoaded', () => {
