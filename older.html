@@ -10,6 +10,8 @@
       color: black;
       padding: 2rem;
       text-align: center;
+      min-height: 100vh;
+      position: relative;
     }
 
     .older-container {
@@ -17,7 +19,7 @@
       flex-direction: column;
       gap: 1.5rem;
       align-items: center;
-      margin-bottom: 4rem;
+      margin-bottom: 6rem;
     }
 
     .report-card {
@@ -47,10 +49,10 @@
       border-radius: 6px;
     }
 
-    #return-btn {
+    .return-btn {
       position: fixed;
       bottom: 20px;
-      left: 20px;
+      right: 20px;
       font-size: 0.9rem;
       padding: 6px 10px;
       border: 1px solid black;
@@ -61,12 +63,19 @@
       border-radius: 6px;
     }
 
-    footer {
-      margin-top: 4rem;
-      color: gray;
+    .highlight-top {
+      background-color: #ffffcc;
     }
 
-    /* Hidden file list */
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #888;
+    }
+
     #older-files {
       display: none;
     }
@@ -77,9 +86,7 @@
   <h1>Older Exchange Rate Reports</h1>
   <h2>Archived Reports</h2>
 
-  <div class="older-container" id="older-container">
-    <!-- Reports generated dynamically -->
-  </div>
+  <div class="older-container" id="older-container"></div>
 
   <!-- Hidden file list -->
   <ul id="older-files">
@@ -89,10 +96,9 @@
     <!-- Add more files here -->
   </ul>
 
-  <!-- Return Button -->
-  <button id="return-btn" onclick="window.location.href='history.html'">Return to History</button>
+  <button class="return-btn" onclick="window.location.href='history.html'">Return to History</button>
 
-  <footer>&copy; partconsole.com</footer>
+  <footer>© partconsole.com</footer>
 
   <script>
     window.addEventListener('DOMContentLoaded', () => {
@@ -112,7 +118,7 @@
 
       filesWithDates.sort((a, b) => b.dateObj - a.dateObj);
 
-      filesWithDates.forEach(item => {
+      filesWithDates.forEach((item, index) => {
         const { fileName, dateObj } = item;
         const day = String(dateObj.getDate()).padStart(2, '0');
         const month = String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -123,6 +129,9 @@
 
         const card = document.createElement('div');
         card.className = 'report-card';
+        if (index === 0) {
+          card.classList.add('highlight-top');
+        }
 
         card.innerHTML = `
           <div class="report-info">${formattedDate} - ${weekInfo}</div>
