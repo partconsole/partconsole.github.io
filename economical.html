@@ -38,6 +38,17 @@
       padding: 5px;
       font-family: inherit;
     }
+    #fixed-buttons {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    #fixed-buttons button {
+      margin-bottom: 10px;
+    }
     footer {
       position: absolute;
       bottom: 10px;
@@ -72,11 +83,8 @@
     <tr><th>Currency</th><th>Exchange Rate</th><th>Percent Conversion (%)</th></tr>
   </table>
 
-  <div>
-    <button id="export-btn">Export as Excel</button>
-    <button id="history-btn">View History</button>
-    <button id="return-btn">Return to Hub</button>
-  </div>
+  <!-- History button stays normal -->
+  <button id="history-btn">View History</button>
 
   <h2>FX Power Gap Comparison</h2>
   <p>Select a past date to compare USD strength:</p>
@@ -84,6 +92,12 @@
   <button id="compare-btn">Compare</button>
 
   <div id="comparison-results"></div>
+
+  <!-- Fixed buttons for Export and Return -->
+  <div id="fixed-buttons">
+    <button id="export-btn">Export as Excel</button>
+    <button id="return-btn">Return to Hub</button>
+  </div>
 
   <footer>&copy; partconsole.com</footer>
 
