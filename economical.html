@@ -93,11 +93,29 @@
     tr:hover {
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
+
+    #brand-menu {
+      display: inline-block;
+      padding: 0.6rem 1.2rem;
+      border: 2px solid black;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: white;
+      color: black;
+      margin-bottom: 2rem;
+      transition: all 0.3s ease
+    }
+    #brand-menu:hover {
+      background-color: black;
+      color: white;
+    }
   </style>
 </head>
 
 <body>
-  <h1>economical @ partconsole.com</h1>
+  <div id="brand-menu" onclick="goHome()">economical @ partconsole.com</div>
 
   <div class="content-container">
     <h2>Exchange Rate Report (USD Base)</h2>
@@ -367,6 +385,11 @@ updateDateTime();
 fetchExchangeRates();
 fetchHistoricalRates('2019-01-01', new Date().toISOString().split('T')[0]);
 setInterval(fetchExchangeRates, 300000);
+  
+function goHome() {
+  window.location.href = "main.html"; // or "index.html" or wherever your hub is
+}
+
 </script>
 
 </body>
