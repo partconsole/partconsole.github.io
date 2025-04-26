@@ -1,13 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Exchange Rate Report - April 14, 2024</title>
+  <meta charset="UTF-8">
+  <title>Exchange Rate Report - partconsole.com</title>
   <style>
     body {
       font-family: monospace;
       padding: 2rem;
       position: relative;
       min-height: 100vh;
+      background-color: white;
+      color: black;
+      text-align: center;
     }
     table {
       width: 100%;
@@ -19,10 +23,7 @@
       padding: 8px;
       text-align: left;
     }
-    #export-btn {
-      position: absolute;
-      bottom: 60px;
-      right: 40px;
+    #export-btn, #return-btn {
       font-size: 0.9rem;
       padding: 6px 10px;
       border: 1px solid black;
@@ -30,18 +31,7 @@
       color: white;
       cursor: pointer;
       font-family: inherit;
-    }
-    #return-btn {
-      position: absolute;
-      bottom: 60px;
-      left: 40px;
-      font-size: 0.9rem;
-      padding: 6px 10px;
-      border: 1px solid black;
-      background-color: black;
-      color: white;
-      cursor: pointer;
-      font-family: inherit;
+      margin: 10px;
     }
     footer {
       position: absolute;
@@ -53,44 +43,87 @@
       color: #888;
     }
     h1 {
-  margin-bottom: 4rem; /* increase space between h1 and h2/table */
+      margin-bottom: 4rem;
     }
     h2 {
-  margin-top: 0;
+      margin-top: 0;
     }
   </style>
 </head>
+
 <body>
-  <h1 style="text-align: center; margin-bottom: 1rem;">economical @ partconsole.com</h1>
+  <h1>economical @ partconsole.com</h1>
   <h2>Exchange Rate Report (USD Base)</h2>
-  <p>Date: April 14, 2024</p>
+  <p id="report-date">Date: Loading...</p>
+
   <table id="report-table">
     <tr><th>Currency</th><th>Exchange Rate</th><th>Percent Conversion (%)</th></tr>
-    <tr><td>EUR (Euro)</td><td>0.93</td><td>+7.53%</td></tr>
-    <tr><td>JPY (Japanese Yen)</td><td>152.21</td><td>-99.34%</td></tr>
-    <tr><td>KRW (South Korean Won)</td><td>1374.25</td><td>-99.93%</td></tr>
-    <tr><td>CNY (Chinese Yuan)</td><td>7.23</td><td>-86.16%</td></tr>
-    <tr><td>VND (Vietnamese Dong)</td><td>24485.00</td><td>-99.99%</td></tr>
+    <!-- Table rows will be dynamically inserted here -->
   </table>
 
-  <button id="export-btn">Export as Excel</button>
-  <button id="return-btn">Return to Hub</button>
+  <div>
+    <button id="export-btn">Export as Excel</button>
+    <button id="return-btn">Return to Hub</button>
+  </div>
+
   <footer>&copy; partconsole.com</footer>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-<script>
-  document.getElementById("export-btn").onclick = function () {
-    const table = document.getElementById("report-table");
+  <script>
+    const currencies = ['EUR', 'JPY', 'KRW', 'CNY', 'VND']; // Currencies you want to show
 
-    // Convert HTML table to SheetJS worksheet
-    const workbook = XLSX.utils.table_to_book(table, { sheet: "Exchange Report" });
+    async function fetchExchangeRates() {
+      try {
+        const response = await fetch('https://api.frankfurter.app/latest?from=USD');
+        const data = await response.json();
+        updateTable(data);
+      } catch (error) {
+        console.error('Error fetching exchange rates:', error);
+      }
+    }
 
-    // Generate and trigger download of .xlsx file
-    XLSX.writeFile(workbook, "exchange_rate_report.xlsx");
-  };
-  
-    // Return to Navigation Hub functionality
+    function updateTable(data) {
+      const table = document.getElementById("report-table");
+
+      // Reset table to header only
+      table.innerHTML = `
+        <tr><th>Currency</th><th>Exchange Rate</th><th>Percent Conversion (%)</th></tr>
+      `;
+
+      currencies.forEach(currency => {
+        const rate = data.rates[currency];
+        if (rate !== undefined) {
+          let percentConversion = ((rate - 1) * 100).toFixed(2); // Placeholder formula
+          percentConversion = percentConversion > 0 ? `+${percentConversion}%` : `${percentConversion}%`;
+
+          const row = table.insertRow();
+          row.innerHTML = `
+            <td>${currency}</td>
+            <td>${rate}</td>
+            <td>${percentConversion}</td>
+          `;
+        }
+      });
+
+      // Update the report date
+      document.getElementById('report-date').innerText = `Date: ${data.date}`;
+    }
+
+    // Fetch rates immediately when page loads
+    fetchExchangeRates();
+
+    // Refresh rates every 5 minutes (300,000 milliseconds)
+    setInterval(fetchExchangeRates, 300000);
+
+    // Export to Excel functionality
+    document.getElementById("export-btn").onclick = function () {
+      const table = document.getElementById("report-table");
+      const workbook = XLSX.utils.table_to_book(table, { sheet: "Exchange Report" });
+      XLSX.writeFile(workbook, "exchange_rate_report.xlsx");
+    };
+
+    // Return to Hub functionality
     document.getElementById("return-btn").onclick = function () {
       window.location.href = "main.html";
     };
