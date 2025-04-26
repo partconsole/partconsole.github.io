@@ -64,6 +64,15 @@
     h2 {
       margin-top: 0;
     }
+    #explanation {
+      font-size: 0.8rem;
+      color: gray;
+      margin-top: 1rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+    }
   </style>
 </head>
 
@@ -84,6 +93,16 @@
       </th>
     </tr>
   </table>
+
+  <!-- Explanation under the table -->
+  <div id="explanation">
+    <p><strong>FX Power Gap Formula:</strong><br>
+    (Today's Rate − Past Rate) ÷ Past Rate × 100</p>
+    <p><strong>What it means:</strong><br>
+    FX Power Gap measures how much the USD has strengthened or weakened compared to a past date.<br>
+    - A <span style="color:green;">positive</span> gap means USD strengthened.<br>
+    - A <span style="color:red;">negative</span> gap means USD weakened.</p>
+  </div>
 
   <!-- History button -->
   <button id="history-btn">View History</button>
@@ -146,7 +165,7 @@
         }
       });
 
-      // Reattach event listener every time table is redrawn
+      // Reattach Compare button
       document.getElementById("compare-btn").onclick = compareFXGap;
     }
 
@@ -176,6 +195,15 @@
         if (gapCell && todayRate && pastRate) {
           const gapPercent = ((todayRate - pastRate) / pastRate * 100).toFixed(2);
           gapCell.textContent = (gapPercent > 0 ? "+" : "") + gapPercent + "%";
+
+          // Color code the FX Gap
+          if (gapPercent > 0) {
+            gapCell.style.color = "green"; // USD strengthened
+          } else if (gapPercent < 0) {
+            gapCell.style.color = "red";   // USD weakened
+          } else {
+            gapCell.style.color = "gray";  // No change
+          }
         }
       });
     }
