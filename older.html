@@ -1,53 +1,148 @@
-<script>
-  window.addEventListener('DOMContentLoaded', () => {
-    const fileList = Array.from(document.querySelectorAll('#older-files li'));
-    const container = document.getElementById('older-container');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Older Reports - partconsole.com</title>
+  <style>
+    body {
+      font-family: monospace;
+      background-color: white;
+      color: black;
+      padding: 2rem;
+      text-align: center;
+    }
 
-    // Parse files into an array with dates
-    const filesWithDates = fileList.map(file => {
-      const fileName = file.textContent.trim();
-      const dateMatch = fileName.match(/exchange_rate_(\d{4}-\d{2}-\d{2})\.xlsx/);
-      if (dateMatch) {
-        const dateStr = dateMatch[1];
-        const dateObj = new Date(dateStr);
-        return { fileName, dateObj };
-      }
-      return null;
-    }).filter(item => item !== null);
+    .older-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+      margin-bottom: 4rem;
+    }
 
-    // Sort by date descending (newest first)
-    filesWithDates.sort((a, b) => b.dateObj - a.dateObj);
+    .report-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid black;
+      padding: 1rem 2rem;
+      width: 500px;
+      background-color: #f2f2f2;
+      border-radius: 8px;
+    }
 
-    // Now generate the cards
-    filesWithDates.forEach(item => {
-      const { fileName, dateObj } = item;
-      const day = String(dateObj.getDate()).padStart(2, '0');
-      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-      const year = dateObj.getFullYear();
-      const formattedDate = `${day}/${month}/${year}`;
-      const weekNumber = getISOWeekNumber(dateObj);
-      const weekInfo = `Week${weekNumber}/${year}`;
+    .report-info {
+      text-align: left;
+      font-size: 1.1rem;
+    }
 
-      const card = document.createElement('div');
-      card.className = 'report-card';
+    .export-btn {
+      font-size: 0.9rem;
+      padding: 6px 10px;
+      border: 1px solid black;
+      background-color: black;
+      color: white;
+      cursor: pointer;
+      font-family: inherit;
+      border-radius: 6px;
+    }
 
-      card.innerHTML = `
-        <div class="report-info">${formattedDate} - ${weekInfo}</div>
-        <a href="older/${fileName}" download>
-          <button class="export-btn">Download</button>
-        </a>
-      `;
+    #return-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      font-size: 0.9rem;
+      padding: 6px 10px;
+      border: 1px solid black;
+      background-color: black;
+      color: white;
+      cursor: pointer;
+      font-family: inherit;
+      border-radius: 6px;
+    }
 
-      container.appendChild(card);
+    footer {
+      margin-top: 4rem;
+      color: gray;
+    }
+
+    /* Hidden file list */
+    #older-files {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Older Exchange Rate Reports</h1>
+  <h2>Archived Reports</h2>
+
+  <div class="older-container" id="older-container">
+    <!-- Reports generated dynamically -->
+  </div>
+
+  <!-- Hidden file list -->
+  <ul id="older-files">
+    <li>exchange_rate_2025-03-25.xlsx</li>
+    <li>exchange_rate_2025-03-18.xlsx</li>
+    <li>exchange_rate_2025-03-11.xlsx</li>
+    <!-- Add more files here -->
+  </ul>
+
+  <!-- Return Button -->
+  <button id="return-btn" onclick="window.location.href='history.html'">Return to History</button>
+
+  <footer>&copy; partconsole.com</footer>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const fileList = Array.from(document.querySelectorAll('#older-files li'));
+      const container = document.getElementById('older-container');
+
+      const filesWithDates = fileList.map(file => {
+        const fileName = file.textContent.trim();
+        const dateMatch = fileName.match(/exchange_rate_(\d{4}-\d{2}-\d{2})\.xlsx/);
+        if (dateMatch) {
+          const dateStr = dateMatch[1];
+          const dateObj = new Date(dateStr);
+          return { fileName, dateObj };
+        }
+        return null;
+      }).filter(item => item !== null);
+
+      filesWithDates.sort((a, b) => b.dateObj - a.dateObj);
+
+      filesWithDates.forEach(item => {
+        const { fileName, dateObj } = item;
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const year = dateObj.getFullYear();
+        const formattedDate = `${day}/${month}/${year}`;
+        const weekNumber = getISOWeekNumber(dateObj);
+        const weekInfo = `Week${weekNumber}/${year}`;
+
+        const card = document.createElement('div');
+        card.className = 'report-card';
+
+        card.innerHTML = `
+          <div class="report-info">${formattedDate} - ${weekInfo}</div>
+          <a href="older/${fileName}" download>
+            <button class="export-btn">Download</button>
+          </a>
+        `;
+
+        container.appendChild(card);
+      });
     });
-  });
 
-  function getISOWeekNumber(date) {
-    const target = new Date(date.valueOf());
-    const dayNr = (date.getDay() + 6) % 7;
-    target.setDate(target.getDate() - dayNr + 3);
-    const firstThursday = new Date(target.getFullYear(), 0, 4);
-    const weekNumber = 1 + Math.round(((target.getTime() - firstThursday.getTime()) / 86400000 - 3 + ((firstThursday.getDay() + 6) % 7)) / 7);
-    return weekNumber;
-  }
-</script>
+    function getISOWeekNumber(date) {
+      const target = new Date(date.valueOf());
+      const dayNr = (date.getDay() + 6) % 7;
+      target.setDate(target.getDate() - dayNr + 3);
+      const firstThursday = new Date(target.getFullYear(), 0, 4);
+      const weekNumber = 1 + Math.round(((target.getTime() - firstThursday.getTime()) / 86400000 - 3 + ((firstThursday.getDay() + 6) % 7)) / 7);
+      return weekNumber;
+    }
+  </script>
+</body>
+</html>
