@@ -111,78 +111,75 @@
 </head>
 
 <body>
-<div id="brand-menu" onclick="goHome()">economical @ partconsole.com</div>
+  <div id="brand-menu" onclick="goHome()">economical @ partconsole.com</div>
 
-<div class="content-container">
+  <div class="content-container">
+    <div class="boxed-title">Exchange Rate Report (USD Base)</div>
+    <div id="explanation">
+      <p><strong>Interpretation:</strong> Positive = USD Strengthened, Negative = USD Weakened</p>
+      <p><strong>Formula:</strong> (Today's Rate − Past Rate) ÷ Past Rate × 100</p>
+    </div>
 
-  <div class="boxed-title">Exchange Rate Report (USD Base)</div>
+    <div style="margin-bottom: 1rem;">
+      <label for="compare-start-date"><strong>Compare Start Date:</strong></label>
+      <input type="date" id="compare-start-date" style="margin-left:5px;">
+      <label for="compare-end-date" style="margin-left:10px;"><strong>Compare End Date:</strong></label>
+      <input type="date" id="compare-end-date" style="margin-left:5px;">
+      <button id="compare-btn" style="margin-left:10px;">Compare</button>
+    </div>
 
-  <div id="explanation">
-    <p><strong>Interpretation:</strong> Positive = USD Strengthened, Negative = USD Weakened</p>
-    <p><strong>Formula:</strong> (Today's Rate − Past Rate) ÷ Past Rate × 100</p>
+    <table id="report-table">
+      <thead>
+        <tr>
+          <th>Currency</th>
+          <th>Today's Rate</th>
+          <th>% Conversion</th>
+          <th>Past Rate</th>
+          <th>FX Power Gap (%)</th>
+          <th>USD Movement</th>
+        </tr>
+      </thead>
+      <tbody id="report-body"></tbody>
+    </table>
+
+    <p id="last-updated" style="font-size: 0.8rem; color: gray; margin-top: 10px;">Last Updated: Loading...</p>
+
+    <button id="history-btn" style="margin-top:2rem;">View History</button>
+
+    <div style="margin-top: 5rem;"></div>
+
+    <div class="boxed-title">Historical USD Movement (Quarterly Since 2020)</div>
+    <div id="metric-definition">
+      <p><strong>Metric:</strong> Relative Strength = (Base Rate / Current Rate - 1) * 100</p>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <label for="start-date"><strong>Start Date:</strong></label>
+      <input type="date" id="start-date" style="margin-left:5px;">
+      <label for="end-date" style="margin-left:10px;"><strong>End Date:</strong></label>
+      <input type="date" id="end-date" style="margin-left:5px;">
+      <button id="update-historical-btn" style="margin-left:10px;">Update Chart</button>
+      <button id="reset-historical-btn" style="margin-left:10px;">Reset</button>
+    </div>
+
+    <canvas id="historical-chart" width="800" height="300"></canvas>
+    <div id="historical-legend">
+      📈 Line colors = EUR, JPY, KRW, CNY relative to USD
+    </div>
   </div>
 
-  <div style="margin-bottom: 1rem;">
-    <label for="compare-start-date"><strong>Compare Start Date:</strong></label>
-    <input type="date" id="compare-start-date" style="margin-left:5px;">
-    <label for="compare-end-date" style="margin-left:10px;"><strong>Compare End Date:</strong></label>
-    <input type="date" id="compare-end-date" style="margin-left:5px;">
-    <button id="compare-btn" style="margin-left:10px;">Compare</button>
+  <div id="fixed-buttons">
+    <button id="export-btn">Export as Excel</button>
+    <button id="return-btn">Return to Hub</button>
   </div>
 
-  <p id="report-date-time" style="font-size: 0.8rem; color: gray; margin-top: 10px;">Loading current date and time...</p>
-
-  <table id="report-table">
-    <thead>
-    <tr>
-      <th>Currency</th>
-      <th>Today's Rate</th>
-      <th>% Conversion</th>
-      <th>Past Rate</th>
-      <th>FX Power Gap (%)</th>
-      <th>USD Movement</th>
-    </tr>
-    </thead>
-    <tbody id="report-body"></tbody>
-  </table>
-
-  <p id="last-updated" style="font-size: 0.8rem; color: gray; margin-top: 10px;">Last Updated: Loading...</p>
-
-  <div style="margin-top: 5rem;"></div>
-
-  <div class="boxed-title">Historical USD Movement (Quarterly Since 2020)</div>
-
-  <div id="metric-definition">
-    <p><strong>Metric:</strong> % change of USD purchasing power relative to each currency over time (higher % = USD stronger).</p>
-  </div>
-
-  <div style="margin-bottom: 1rem;">
-    <label for="start-date"><strong>Start Date:</strong></label>
-    <input type="date" id="start-date" style="margin-left:5px;">
-    <label for="end-date" style="margin-left:10px;"><strong>End Date:</strong></label>
-    <input type="date" id="end-date" style="margin-left:5px;">
-    <button id="update-historical-btn" style="margin-left:10px;">Update Chart</button>
-    <button id="reset-historical-btn" style="margin-left:10px;">Reset</button>
-  </div>
-
-  <canvas id="historical-chart" width="800" height="300"></canvas>
-  <div id="historical-legend">
-    📈 Line colors = EUR, JPY, KRW, CNY relative to USD
-  </div>
-
-</div>
-
-<div id="fixed-buttons">
-  <button id="export-btn">Export as Excel</button>
-  <button id="return-btn">Return to Hub</button>
-</div>
-
-<footer>&copy; partconsole.com</footer>
+  <footer>&copy; partconsole.com</footer>
 
 <script>
 const currencies = ['EUR', 'JPY', 'KRW', 'CNY'];
 const currencyNames = { EUR: "Euro", JPY: "Japanese Yen", KRW: "South Korean Won", CNY: "Chinese Yuan" };
-let todayRates = {}; let historicalChart;
+let todayRates = {}; 
+let historicalChart;
 
 function goHome() { window.location.href = "main.html"; }
 
@@ -212,11 +209,13 @@ function updateTable(data) {
 document.getElementById("compare-btn").onclick = async function () {
   const start = document.getElementById("compare-start-date").value;
   const end = document.getElementById("compare-end-date").value;
-  if (!start || !end) { alert("Select start and end!"); return; }
-  const res = await fetch(`https://api.frankfurter.app/${start}..${end}?from=USD`);
-  const data = await res.json();
-  const lastDate = Object.keys(data.rates).sort().pop();
-  updateFXGap(todayRates, data.rates[lastDate]);
+  if (!start || !end) { alert("Select start and end dates!"); return; }
+  try {
+    const res = await fetch(`https://api.frankfurter.app/${start}..${end}?from=USD`);
+    const data = await res.json();
+    const lastDate = Object.keys(data.rates).sort().pop();
+    updateFXGap(todayRates, data.rates[lastDate]);
+  } catch (e) { console.error(e); }
 };
 
 function updateFXGap(todayRates, pastData) {
@@ -230,26 +229,44 @@ function updateFXGap(todayRates, pastData) {
       pastCell.textContent = past.toFixed(4);
       const gap = ((today - past) / past * 100).toFixed(2);
       gapCell.textContent = `${gap > 0 ? "+" : ""}${gap}%`;
-      interpretCell.textContent = gap > 0 ? "▲" : gap < 0 ? "▼" : "–";
+      if (gap > 0) {
+        gapCell.style.color = "green";
+        interpretCell.textContent = "▲";
+        interpretCell.style.color = "green";
+      } else if (gap < 0) {
+        gapCell.style.color = "red";
+        interpretCell.textContent = "▼";
+        interpretCell.style.color = "red";
+      } else {
+        gapCell.style.color = "gray";
+        interpretCell.textContent = "–";
+        interpretCell.style.color = "gray";
+      }
     }
   });
 }
 
 async function fetchHistoricalRates(start, end) {
-  const res = await fetch(`https://api.frankfurter.app/${start}..${end}?from=USD&to=EUR,JPY,KRW,CNY`);
-  const data = await res.json();
-  plotHistoricalChart(data);
+  try {
+    const res = await fetch(`https://api.frankfurter.app/${start}..${end}?from=USD&to=EUR,JPY,KRW,CNY`);
+    const data = await res.json();
+    plotHistoricalChart(data);
+  } catch (e) { console.error(e); }
 }
 
 function plotHistoricalChart(data) {
   const ctx = document.getElementById('historical-chart').getContext('2d');
   const labels = Object.keys(data.rates);
-  const datasets = currencies.map(cur => ({
-    label: `${cur} (${currencyNames[cur]})`,
-    data: labels.map(date => (1 / data.rates[date][cur] - 1) * 100),
-    borderColor: getColor(cur),
-    fill: false
-  }));
+  const datasets = currencies.map(cur => {
+    const base = data.rates[labels[0]][cur];
+    return {
+      label: `${cur} (${currencyNames[cur]})`,
+      data: labels.map(date => ((base / data.rates[date][cur]) - 1) * 100),
+      borderColor: getColor(cur),
+      fill: false
+    };
+  });
+
   if (historicalChart) historicalChart.destroy();
   historicalChart = new Chart(ctx, { type: 'line', data: { labels, datasets }, options: { responsive: true } });
 }
@@ -273,7 +290,20 @@ document.getElementById("export-btn").onclick = function () {
   XLSX.writeFile(wb, "exchange_rate_report.xlsx");
 };
 
-document.getElementById("return-btn").onclick = function () { window.location.href = "main.html"; };
+document.getElementById("return-btn").onclick = function () {
+  window.location.href = "main.html";
+};
+
+document.getElementById("history-btn").onclick = function () {
+  window.location.href = "history.html";
+};
+
+function updateLastUpdated() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('last-updated').innerText = `Last Updated: ${dateStr} ${timeStr}`;
+}
 
 function updateDateTime() {
   const now = new Date();
