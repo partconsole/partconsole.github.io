@@ -6,50 +6,125 @@
   <style>
     body {
       font-family: monospace;
-      text-align: center;
       background-color: white;
       color: black;
       padding: 2rem;
+      text-align: center;
     }
-    a {
-      display: block;
-      margin: 10px 0;
-      color: black;
-      text-decoration: none;
-      font-size: 1.1rem;
+
+    .history-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+      margin-bottom: 4rem;
+    }
+
+    .report-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       border: 1px solid black;
-      padding: 8px;
-      border-radius: 10px;
+      padding: 1rem 2rem;
+      width: 500px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
     }
-    a:hover {
+
+    .report-info {
+      text-align: left;
+      font-size: 1.1rem;
+    }
+
+    .export-btn {
+      font-size: 0.9rem;
+      padding: 6px 10px;
+      border: 1px solid black;
       background-color: black;
       color: white;
+      cursor: pointer;
+      font-family: inherit;
+      border-radius: 6px;
     }
+
+    .older-link {
+      font-size: 1rem;
+      margin-top: 2rem;
+      text-decoration: underline;
+      color: blue;
+      cursor: pointer;
+    }
+
+    #return-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      font-size: 0.9rem;
+      padding: 6px 10px;
+      border: 1px solid black;
+      background-color: black;
+      color: white;
+      cursor: pointer;
+      font-family: inherit;
+      border-radius: 6px;
+    }
+
     footer {
       margin-top: 4rem;
       color: gray;
-    }
-    h1 {
-      margin-bottom: 1rem;
-    }
-    h2 {
-      margin-bottom: 2rem;
     }
   </style>
 </head>
 
 <body>
   <h1>Exchange Rate History</h1>
-  <h2>Saved Weekly Reports (Format: Date/Month/Year - WeekX/Year)</h2>
+  <h2>Latest 5 Reports</h2>
 
-  <!-- Example saved reports -->
-  <a href="history/exchange_rate_2025-04-28.xlsx" download>28/04/2025 - Week18/2025</a>
-  <a href="history/exchange_rate_2025-05-05.xlsx" download>05/05/2025 - Week19/2025</a>
-  <a href="history/exchange_rate_2025-05-12.xlsx" download>12/05/2025 - Week20/2025</a>
-  <a href="history/exchange_rate_2025-05-19.xlsx" download>19/05/2025 - Week21/2025</a>
+  <div class="history-container">
+    <!-- Latest reports -->
+    <div class="report-card">
+      <div class="report-info">29/04/2025 - Week18/2025</div>
+      <a href="history/exchange_rate_2025-04-29.xlsx" download>
+        <button class="export-btn">Download</button>
+      </a>
+    </div>
 
-  <!-- Return button -->
-  <p><a href="economical.html" style="font-size:0.9rem; border:none; color:blue; text-decoration:underline;">Return to Economical</a></p>
+    <div class="report-card">
+      <div class="report-info">22/04/2025 - Week17/2025</div>
+      <a href="history/exchange_rate_2025-04-22.xlsx" download>
+        <button class="export-btn">Download</button>
+      </a>
+    </div>
+
+    <div class="report-card">
+      <div class="report-info">15/04/2025 - Week16/2025</div>
+      <a href="history/exchange_rate_2025-04-15.xlsx" download>
+        <button class="export-btn">Download</button>
+      </a>
+    </div>
+
+    <div class="report-card">
+      <div class="report-info">08/04/2025 - Week15/2025</div>
+      <a href="history/exchange_rate_2025-04-08.xlsx" download>
+        <button class="export-btn">Download</button>
+      </a>
+    </div>
+
+    <div class="report-card">
+      <div class="report-info">01/04/2025 - Week14/2025</div>
+      <a href="history/exchange_rate_2025-04-01.xlsx" download>
+        <button class="export-btn">Download</button>
+      </a>
+    </div>
+  </div>
+
+  <!-- Link to older reports -->
+  <div>
+    <a href="older.html" class="older-link">View Older Reports</a>
+  </div>
+
+  <!-- Return to Economical Button -->
+  <button id="return-btn" onclick="window.location.href='economical.html'">Return to Economical</button>
 
   <footer>&copy; partconsole.com</footer>
 </body>
