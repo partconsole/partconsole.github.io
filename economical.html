@@ -18,6 +18,24 @@
     .content-container {
       max-width: 900px;
       margin: 0 auto;
+      text-align: left;
+    }
+    #brand-menu {
+      display: inline-block;
+      padding: 0.6rem 1.2rem;
+      border: 2px solid black;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: white;
+      color: black;
+      margin-bottom: 2rem;
+      transition: all 0.3s ease;
+    }
+    #brand-menu:hover {
+      background-color: black;
+      color: white;
     }
     table {
       width: 100%;
@@ -37,6 +55,13 @@
       font-family: monospace;
       font-size: 0.8rem;
     }
+    .boxed-title {
+      display: inline-block;
+      border: 2px solid black;
+      padding: 0.5rem 1rem;
+      margin-bottom: 1rem;
+      font-weight: bold;
+    }
     #fixed-buttons {
       position: fixed;
       bottom: 20px;
@@ -53,19 +78,16 @@
       background-color: black;
       color: white;
       cursor: pointer;
-      font-family: inherit;
       border-radius: 0;
     }
-    #history-btn {
+    footer {
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      width: 100%;
+      text-align: center;
       font-size: 0.9rem;
-      padding: 6px 10px;
-      border: 1px solid black;
-      background-color: black;
-      color: white;
-      cursor: pointer;
-      font-family: inherit;
-      border-radius: 0;
-      margin-top: 20px;
+      color: #888;
     }
     #explanation {
       font-size: 0.8rem;
@@ -81,50 +103,27 @@
       margin-top: 0.2rem;
       margin-bottom: 0.2rem;
     }
-    footer {
-      position: absolute;
-      bottom: 10px;
-      left: 0;
-      width: 100%;
-      text-align: center;
+    #legend, #historical-legend {
+      margin-top: 1rem;
       font-size: 0.9rem;
-      color: #888;
+      color: #555;
     }
     tr:hover {
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    #brand-menu {
-      display: inline-block;
-      padding: 0.6rem 1.2rem;
-      border: 2px solid black;
-      border-radius: 8px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      cursor: pointer;
-      background-color: white;
-      color: black;
-      margin-bottom: 2rem;
-      transition: all 0.3s ease;
-    }
-    #brand-menu:hover {
-      background-color: black;
-      color: white;
     }
   </style>
 </head>
 
 <body>
   <div id="brand-menu" onclick="goHome()">economical @ partconsole.com</div>
-
   <div class="content-container">
-    <h2>Exchange Rate Report (USD Base)</h2>
+
+    <div class="boxed-title">Exchange Rate Report (USD Base)</div>
 
     <div style="margin-bottom: 1rem;">
       <label for="compare-date"><strong>Choose Date to Compare:</strong></label>
       <input type="date" id="compare-date" style="margin-left: 5px;">
       <button id="compare-btn" style="margin-left: 5px;">Compare</button>
-      <button id="sort-btn" style="margin-left: 5px;">Sort by Movement</button>
     </div>
 
     <p id="report-date-time">Loading current date and time...</p>
@@ -148,162 +147,40 @@
     <p id="last-updated" style="font-size: 0.8rem; color: gray; margin-top: 10px;">Last Updated: Loading...</p>
 
     <div id="explanation">
-      <p><strong>FX Power Gap Formula:</strong><br>
-      (Today's Rate − Past Rate) ÷ Past Rate × 100</p>
-      <p><strong>What it means:</strong><br>
-      FX Power Gap measures how much the USD has strengthened or weakened compared to a past date.<br>
-      - A <span style="color:green;">positive</span> gap means USD strengthened.<br>
-      - A <span style="color:red;">negative</span> gap means USD weakened.</p>
+      <p><strong>FX Power Gap Formula:</strong> (Today's Rate − Past Rate) ÷ Past Rate × 100</p>
+      <p><strong>Meaning:</strong> Positive = USD Strengthened, Negative = USD Weakened</p>
     </div>
 
-    <h2>Historical USD Movement (Quarterly Since 2019)</h2>
-    <p style="font-size:0.8rem; color:gray;">Metric: % Change relative to the first recorded value in the selected range.</p>
+<div class="section-box">
+  <h2 class="section-heading">Historical USD Movement (Quarterly Since 2020)</h2>
 
-    <div style="margin-bottom: 1rem;">
-      <label for="start-date"><strong>Start Date:</strong></label>
-      <input type="date" id="start-date" style="margin-left:5px;">
-      <label for="end-date" style="margin-left:10px;"><strong>End Date:</strong></label>
-      <input type="date" id="end-date" style="margin-left:5px;">
-      <button id="update-historical-btn" style="margin-left:10px;">Update Chart</button>
-    </div>
+  <p style="font-size:0.8rem; color:gray; text-align:left; max-width:600px; margin: 0 auto;">
+    Metric: Percentage change of USD purchasing power relative to each currency over time. (Higher % = USD stronger)
+  </p>
 
-    <canvas id="historical-chart" width="800" height="300"></canvas>
-    <div id="historical-legend">
-      📈 Line colors = EUR, JPY, KRW, CNY relative to USD
-    </div>
-
-    <button id="history-btn">View History</button>
+  <div style="margin-bottom: 1rem;">
+    <label for="start-date"><strong>Start Date:</strong></label>
+    <input type="date" id="start-date" style="margin-left:5px;">
+    <label for="end-date" style="margin-left:10px;"><strong>End Date:</strong></label>
+    <input type="date" id="end-date" style="margin-left:5px;">
+    <button id="update-historical-btn" style="margin-left:10px;">Update Chart</button>
+    <button id="reset-historical-btn" style="margin-left:10px;">Reset</button>
   </div>
 
-  <div id="fixed-buttons">
-    <button id="export-btn">Export as Excel</button>
-    <button id="return-btn">Return to Hub</button>
+  <canvas id="historical-chart" width="800" height="300"></canvas>
+  <div id="historical-legend">
+    📈 Line colors = EUR, JPY, KRW, CNY relative to USD
   </div>
-
-  <footer>&copy; partconsole.com</footer>
+</div>
 
 <script>
-const currencies = ['EUR', 'JPY', 'KRW', 'CNY'];
-const currencyNames = {
-  EUR: "Euro",
-  JPY: "Japanese Yen",
-  KRW: "South Korean Won",
-  CNY: "Chinese Yuan"
-};
-
-let todayRates = {};
-let pastRates = {};
-let historicalChart;
-
-async function fetchExchangeRates() {
-  try {
-    const response = await fetch('https://api.frankfurter.app/latest?from=USD');
-    const data = await response.json();
-    todayRates = data.rates;
-    updateTable(todayRates);
-    updateLastUpdated();
-  } catch (error) {
-    console.error('Error fetching exchange rates:', error);
-  }
-}
-
-function updateTable(data) {
-  const tbody = document.getElementById("report-body");
-  tbody.innerHTML = "";
-
-  currencies.forEach(currency => {
-    const rate = data[currency];
-    if (rate !== undefined) {
-      let percentConversion = ((rate - 1) * 100).toFixed(2);
-      percentConversion = percentConversion > 0 ? `+${percentConversion}%` : `${percentConversion}%`;
-
-      const row = tbody.insertRow();
-      row.innerHTML = `
-        <td>${currency} (${currencyNames[currency]})</td>
-        <td>${rate}</td>
-        <td>${percentConversion}</td>
-        <td id="past-${currency}">N/A</td>
-        <td id="gap-${currency}">N/A</td>
-        <td id="interpret-${currency}">N/A</td>
-      `;
-    }
-  });
-
-  document.getElementById("compare-btn").onclick = compareFXGap;
-}
-
-async function compareFXGap() {
-  const selectedDate = document.getElementById("compare-date").value;
-  if (!selectedDate) {
-    alert("Please select a date!");
-    return;
-  }
-
-  try {
-    const response = await fetch(`https://api.frankfurter.app/${selectedDate}?from=USD`);
-    const data = await response.json();
-    pastRates = data.rates;
-    updateFXGap(todayRates, pastRates);
-    updateLastUpdated();
-  } catch (error) {
-    console.error('Error fetching comparison data:', error);
-  }
-}
-
-function updateFXGap(todayRates, pastRates) {
-  currencies.forEach(currency => {
-    const todayRate = todayRates[currency];
-    const pastRate = pastRates[currency];
-    const pastCell = document.getElementById(`past-${currency}`);
-    const gapCell = document.getElementById(`gap-${currency}`);
-    const interpretCell = document.getElementById(`interpret-${currency}`);
-    const row = pastCell?.parentNode;
-
-    if (pastCell && gapCell && interpretCell && todayRate && pastRate) {
-      pastCell.textContent = pastRate.toFixed(4);
-
-      const gapPercent = ((todayRate - pastRate) / pastRate * 100).toFixed(2);
-
-      gapCell.textContent = (gapPercent > 0 ? "+" : "") + gapPercent + "%";
-      if (gapPercent > 0) {
-        gapCell.style.color = "green";
-        interpretCell.textContent = "▲";
-        interpretCell.style.color = "green";
-        row.style.backgroundColor = "#d4f4d2";
-      } else if (gapPercent < 0) {
-        gapCell.style.color = "red";
-        interpretCell.textContent = "▼";
-        interpretCell.style.color = "red";
-        row.style.backgroundColor = "#f9d6d5";
-      } else {
-        gapCell.style.color = "gray";
-        interpretCell.textContent = "–";
-        interpretCell.style.color = "gray";
-        row.style.backgroundColor = "#f0f0f0";
-      }
-    }
-  });
-}
-
-async function fetchHistoricalRates(start, end) {
-  try {
-    const response = await fetch(`https://api.frankfurter.app/${start}..${end}?from=USD&to=EUR,JPY,KRW,CNY`);
-    const data = await response.json();
-    plotHistoricalChart(data);
-  } catch (error) {
-    console.error('Error fetching historical rates:', error);
-  }
-}
-
 function plotHistoricalChart(data) {
   const ctx = document.getElementById('historical-chart').getContext('2d');
-
   const labels = Object.keys(data.rates);
   const datasets = currencies.map(currency => {
-    const baseRate = data.rates[labels[0]][currency];
     return {
       label: `${currency} (${currencyNames[currency]})`,
-      data: labels.map(date => ((data.rates[date][currency] - baseRate) / baseRate * 100)),
+      data: labels.map(date => (1 / data.rates[date][currency] - 1) * 100),
       borderColor: getColor(currency),
       fill: false
     };
@@ -325,7 +202,7 @@ function plotHistoricalChart(data) {
         x: {
           ticks: {
             maxTicksLimit: Math.ceil(labels.length / 4),
-            callback: function(value, index, values) {
+            callback: function(value, index) {
               return index % 4 === 0 ? this.getLabelForValue(value) : '';
             }
           }
@@ -333,7 +210,7 @@ function plotHistoricalChart(data) {
         y: {
           title: {
             display: true,
-            text: '% Change vs. Start Date'
+            text: '% Change vs. USD Strength'
           }
         }
       }
@@ -341,56 +218,20 @@ function plotHistoricalChart(data) {
   });
 }
 
-function getColor(currency) {
-  switch (currency) {
-    case 'EUR': return 'blue';
-    case 'JPY': return 'green';
-    case 'KRW': return 'purple';
-    case 'CNY': return 'orange';
-    default: return 'gray';
+document.getElementById("update-historical-btn").onclick = function () {
+  const startDate = document.getElementById("start-date").value;
+  const endDate = document.getElementById("end-date").value;
+  if (!startDate || !endDate) {
+    alert("Please select both start and end dates!");
+    return;
   }
-}
-
-function updateLastUpdated() {
-  const now = new Date();
-  const dateStr = now.toLocaleDateString();
-  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  document.getElementById('last-updated').innerText = `Last Updated: ${dateStr} ${timeStr}`;
-}
-
-document.getElementById("export-btn").onclick = function () {
-  const table = document.getElementById("report-table");
-  const workbook = XLSX.utils.table_to_book(table, { sheet: "Exchange Report" });
-  XLSX.writeFile(workbook, "exchange_rate_report.xlsx");
+  fetchHistoricalRates(startDate, endDate);
 };
 
-document.getElementById("return-btn").onclick = function () {
-  window.location.href = "main.html";
+document.getElementById("reset-historical-btn").onclick = function () {
+  fetchHistoricalRates('2020-01-01', new Date().toISOString().split('T')[0]);
 };
-
-document.getElementById("history-btn").onclick = function () {
-  window.location.href = "history.html";
-};
-
-function updateDateTime() {
-  const now = new Date();
-  const dateStr = now.toLocaleDateString();
-  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  document.getElementById('report-date-time').innerText = `Date: ${dateStr} | Time: ${timeStr}`;
-}
-
-// Initial Load
-setInterval(updateDateTime, 60000);
-updateDateTime();
-fetchExchangeRates();
-fetchHistoricalRates('2019-01-01', new Date().toISOString().split('T')[0]);
-setInterval(fetchExchangeRates, 300000);
-  
-function goHome() {
-  window.location.href = "main.html"; // or "index.html" or wherever your hub is
-}
-
 </script>
 
-</body>
-</html>
+<!-- Footer and Final Scripts -->
+<footer>&copy; partconsole.com</footer>
