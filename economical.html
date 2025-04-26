@@ -76,25 +76,22 @@
       font-size: 0.9rem;
       color: #888;
     }
-#explanation {
-  font-size: 0.8rem;
-  color: gray;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: left;
-}
-
-#explanation p {
-  margin-top: 0.2rem;
-  margin-bottom: 0.2rem;
-}
-
-#chart-container {
-  margin-top: 0.5rem;
-}
+    #explanation {
+      font-size: 0.8rem;
+      color: gray;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left
+    }
+    #explanation p {
+      margin-top: 0.2rem;
+      margin-bottom: 0.2rem
+    }
+    #chart-container {
+      margin-top: 0.5rem;
     }
     #legend, #historical-legend {
       margin-top: 1rem;
@@ -363,7 +360,8 @@ function plotHistoricalChart(data) {
   const labels = Object.keys(data.rates);
   const datasets = currencies.map(currency => ({
     label: `${currency} (${currencyNames[currency]})`,
-    data: labels.map(date => data.rates[date][currency]),
+    const baseRate = data.rates[labels[0]][currency];
+  data: labels.map(date => ((data.rates[date][currency] - baseRate) / baseRate) * 100)
     borderColor: getColor(currency),
     fill: false
   }));
