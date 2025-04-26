@@ -20,31 +20,6 @@
       margin: 0 auto;
       text-align: left;
     }
-    #brand-menu {
-      display: inline-block;
-      padding: 0.6rem 1.2rem;
-      border: 2px solid black;
-      border-radius: 8px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      cursor: pointer;
-      background-color: white;
-      color: black;
-      margin-bottom: 2rem;
-      transition: all 0.3s ease;
-    }
-    #brand-menu:hover {
-      background-color: black;
-      color: white;
-    }
-    .boxed-title, .section-heading {
-      display: inline-block;
-      border: 2px solid black;
-      padding: 0.5rem 1rem;
-      margin-bottom: 1rem;
-      font-weight: bold;
-      font-size: 1.2rem;
-    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -62,6 +37,16 @@
     input[type="date"], button {
       font-family: monospace;
       font-size: 0.8rem;
+    }
+    .boxed-title, .section-heading {
+      display: inline-block;
+      border: 2px solid black;
+      padding: 0.5rem 1rem;
+      margin-bottom: 1rem;
+      font-weight: bold;
+    }
+    .section-box {
+      margin-top: 4rem;
     }
     #fixed-buttons {
       position: fixed;
@@ -90,113 +75,104 @@
       font-size: 0.9rem;
       color: #888;
     }
-    #explanation {
+    tr:hover {
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    #explanation, #metric-explanation {
       font-size: 0.8rem;
       color: gray;
       margin-top: 1rem;
-      margin-bottom: 3rem;
+      margin-bottom: 1rem;
       max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
+      margin-left: 0;
       text-align: left;
-    }
-    #explanation p {
-      margin-top: 0.2rem;
-      margin-bottom: 0.2rem;
     }
     #legend, #historical-legend {
       margin-top: 1rem;
       font-size: 0.9rem;
       color: #555;
     }
-    tr:hover {
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
   </style>
 </head>
 
 <body>
+  <div class="content-container">
+    <div class="boxed-title">Exchange Rate Report (USD Base)</div>
 
-<div id="brand-menu" onclick="goHome()">economical @ partconsole.com</div>
-
-<div class="content-container">
-
-  <div class="boxed-title">Exchange Rate Report (USD Base)</div>
-
-  <div style="margin-bottom: 1rem;">
-    <label for="compare-date"><strong>Choose Date to Compare:</strong></label>
-    <input type="date" id="compare-date" style="margin-left: 5px;">
-    <button id="compare-btn" style="margin-left: 5px;">Compare</button>
-  </div>
-
-  <p id="report-date-time">Loading current date and time...</p>
-
-  <table id="report-table">
-    <thead>
-      <tr>
-        <th>Currency</th>
-        <th>Today's Rate</th>
-        <th>% Conversion</th>
-        <th>Past Rate</th>
-        <th>FX Power Gap (%) + Strength</th>
-        <th>USD Movement</th>
-      </tr>
-    </thead>
-    <tbody id="report-body"></tbody>
-  </table>
-
-  <p id="last-updated" style="font-size: 0.8rem; color: gray; margin-top: 10px;">Last Updated: Loading...</p>
-
-  <div id="explanation">
-    <p><strong>FX Power Gap Formula:</strong> (Today's Rate − Past Rate) ÷ Past Rate × 100</p>
-    <p><strong>Meaning:</strong> Positive = USD Strengthened, Negative = USD Weakened</p>
-  </div>
-
-  <div style="margin-top: 5rem;"></div>
-
-  <div class="section-box">
-    <h2 class="section-heading">Historical USD Movement (Quarterly Since 2020)</h2>
-
-    <p style="font-size:0.8rem; color:gray; text-align:left; max-width:600px; margin: 0 auto;">
-      Metric: Percentage change of USD purchasing power relative to each currency over time. (Higher % = USD stronger)
+    <p id="explanation">
+      Interpretation: Positive = USD Strengthened, Negative = USD Weakened<br>
+      Formula: (Today's Rate − Past Rate) ÷ Past Rate × 100
     </p>
 
-    <div style="margin-bottom: 1rem; margin-top: 1rem;">
-      <label for="start-date"><strong>Start Date:</strong></label>
-      <input type="date" id="start-date" style="margin-left:5px;">
-      <label for="end-date" style="margin-left:10px;"><strong>End Date:</strong></label>
-      <input type="date" id="end-date" style="margin-left:5px;">
-      <button id="update-historical-btn" style="margin-left:10px;">Update Chart</button>
-      <button id="reset-historical-btn" style="margin-left:10px;">Reset</button>
+    <div style="margin-bottom: 1rem;">
+      <label for="compare-start-date"><strong>Compare Start Date:</strong></label>
+      <input type="date" id="compare-start-date" style="margin-left:5px;">
+      <label for="compare-end-date" style="margin-left:10px;"><strong>Compare End Date:</strong></label>
+      <input type="date" id="compare-end-date" style="margin-left:5px;">
+      <button id="compare-btn" style="margin-left:10px;">Compare</button>
     </div>
 
-    <canvas id="historical-chart" width="800" height="300"></canvas>
-    <div id="historical-legend">
-      📈 Line colors = EUR, JPY, KRW, CNY relative to USD
+    <p id="report-date-time">Loading current date and time...</p>
+
+    <table id="report-table">
+      <thead>
+        <tr>
+          <th>Currency</th>
+          <th>Today's Rate</th>
+          <th>% Conversion</th>
+          <th>Past Rate</th>
+          <th>FX Power Gap (%) + Strength</th>
+          <th>USD Movement</th>
+        </tr>
+      </thead>
+      <tbody id="report-body">
+        <!-- Dynamic rows -->
+      </tbody>
+    </table>
+
+    <p id="last-updated" style="font-size: 0.8rem; color: gray;">Last Updated: Loading...</p>
+
+    <div class="section-box">
+      <div class="boxed-title">Historical USD Movement (Quarterly Since 2020)</div>
+
+      <p id="metric-explanation">
+        Metric: Percentage change of USD purchasing power relative to each currency over time. (Higher % = USD stronger)
+      </p>
+
+      <div style="margin-bottom: 1rem;">
+        <label for="start-date"><strong>Start Date:</strong></label>
+        <input type="date" id="start-date" style="margin-left:5px;">
+        <label for="end-date" style="margin-left:10px;"><strong>End Date:</strong></label>
+        <input type="date" id="end-date" style="margin-left:5px;">
+        <button id="update-historical-btn" style="margin-left:10px;">Update Chart</button>
+        <button id="reset-historical-btn" style="margin-left:10px;">Reset</button>
+      </div>
+
+      <canvas id="historical-chart" width="800" height="300"></canvas>
+      <div id="historical-legend">
+        📈 Line colors = EUR, JPY, KRW, CNY relative to USD
+      </div>
     </div>
   </div>
 
-</div>
+  <div id="fixed-buttons">
+    <button id="export-btn">Export as Excel</button>
+    <button id="return-btn">Return to Hub</button>
+  </div>
 
-<div id="fixed-buttons">
-  <button id="export-btn">Export as Excel</button>
-  <button id="return-btn">Return to Hub</button>
-</div>
-
-<footer>&copy; partconsole.com</footer>
+  <footer>&copy; partconsole.com</footer>
 
 <script>
-// Global Variables
 const currencies = ['EUR', 'JPY', 'KRW', 'CNY'];
-const currencyNames = { EUR: "Euro", JPY: "Japanese Yen", KRW: "South Korean Won", CNY: "Chinese Yuan" };
+const currencyNames = {
+  EUR: "Euro",
+  JPY: "Japanese Yen",
+  KRW: "South Korean Won",
+  CNY: "Chinese Yuan"
+};
 let todayRates = {};
 let pastRates = {};
 let historicalChart;
-
-// Functions
-function goHome() {
-  window.location.href = "main.html";
-}
 
 async function fetchExchangeRates() {
   try {
@@ -231,19 +207,18 @@ function updateTable(data) {
       `;
     }
   });
-
-  document.getElementById("compare-btn").onclick = compareFXGap;
 }
 
 async function compareFXGap() {
-  const selectedDate = document.getElementById("compare-date").value;
-  if (!selectedDate) {
-    alert("Please select a date!");
+  const startDate = document.getElementById("compare-start-date").value;
+  const endDate = document.getElementById("compare-end-date").value;
+  if (!startDate || !endDate) {
+    alert("Please select both start and end dates!");
     return;
   }
 
   try {
-    const response = await fetch(`https://api.frankfurter.app/${selectedDate}?from=USD`);
+    const response = await fetch(`https://api.frankfurter.app/${startDate}..${endDate}?from=USD`);
     const data = await response.json();
     pastRates = data.rates;
     updateFXGap(todayRates, pastRates);
@@ -265,8 +240,8 @@ function updateFXGap(todayRates, pastRates) {
     if (pastCell && gapCell && interpretCell && todayRate && pastRate) {
       pastCell.textContent = pastRate.toFixed(4);
       const gapPercent = ((todayRate - pastRate) / pastRate * 100).toFixed(2);
-
       gapCell.textContent = (gapPercent > 0 ? "+" : "") + gapPercent + "%";
+
       if (gapPercent > 0) {
         gapCell.style.color = "green";
         interpretCell.textContent = "▲";
@@ -313,7 +288,10 @@ function plotHistoricalChart(data) {
 
   historicalChart = new Chart(ctx, {
     type: 'line',
-    data: { labels, datasets },
+    data: {
+      labels: labels,
+      datasets: datasets
+    },
     options: {
       responsive: true,
       scales: {
@@ -346,6 +324,7 @@ function getColor(currency) {
   }
 }
 
+document.getElementById("compare-btn").onclick = compareFXGap;
 document.getElementById("update-historical-btn").onclick = function () {
   const startDate = document.getElementById("start-date").value;
   const endDate = document.getElementById("end-date").value;
@@ -358,16 +337,6 @@ document.getElementById("update-historical-btn").onclick = function () {
 
 document.getElementById("reset-historical-btn").onclick = function () {
   fetchHistoricalRates('2020-01-01', new Date().toISOString().split('T')[0]);
-};
-
-document.getElementById("export-btn").onclick = function () {
-  const table = document.getElementById("report-table");
-  const workbook = XLSX.utils.table_to_book(table, { sheet: "Exchange Report" });
-  XLSX.writeFile(workbook, "exchange_rate_report.xlsx");
-};
-
-document.getElementById("return-btn").onclick = function () {
-  window.location.href = "main.html";
 };
 
 function updateLastUpdated() {
