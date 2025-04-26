@@ -11,7 +11,7 @@
       background-color: white;
       color: black;
       padding: 2rem;
-      margin: 0;
+      position: relative;
       min-height: 100vh;
       text-align: center;
     }
@@ -28,6 +28,10 @@
       border: 1px solid black;
       padding: 8px;
       text-align: center;
+      vertical-align: middle;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
     }
     input[type="date"], button {
       font-family: monospace;
@@ -55,26 +59,27 @@
     #history-btn {
       font-size: 0.9rem;
       padding: 6px 10px;
-      margin-top: 20px;
       border: 1px solid black;
       background-color: black;
       color: white;
       cursor: pointer;
       font-family: inherit;
       border-radius: 0;
+      margin-top: 20px;
     }
     #explanation {
       font-size: 0.8rem;
       color: gray;
       margin-top: 1rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 1rem;
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
       text-align: left;
     }
-    #chart-container {
-      margin-top: 0.5rem;
+    #explanation p {
+      margin-top: 0.2rem;
+      margin-bottom: 0.2rem;
     }
     footer {
       position: absolute;
@@ -125,23 +130,17 @@
     <p id="last-updated" style="font-size: 0.8rem; color: gray; margin-top: 10px;">Last Updated: Loading...</p>
 
     <div id="explanation">
-      <p><strong>FX Power Gap Formula:</strong><br>(Today's Rate − Past Rate) ÷ Past Rate × 100</p>
+      <p><strong>FX Power Gap Formula:</strong><br>
+      (Today's Rate − Past Rate) ÷ Past Rate × 100</p>
       <p><strong>What it means:</strong><br>
       FX Power Gap measures how much the USD has strengthened or weakened compared to a past date.<br>
-      <span style="color:green;">Positive = USD Strengthened</span><br>
-      <span style="color:red;">Negative = USD Weakened</span></p>
+      - A <span style="color:green;">positive</span> gap means USD strengthened.<br>
+      - A <span style="color:red;">negative</span> gap means USD weakened.</p>
     </div>
 
-    <!-- Movement Chart now right below explanation -->
-    <div id="chart-container">
-      <canvas id="movement-chart" width="800" height="400"></canvas>
-      <div id="legend">
-        📈 Green = USD Strengthened | 📉 Red = USD Weakened | ➖ Gray = No Change
-      </div>
-    </div>
+    <h2>Historical USD Movement (Quarterly Since 2019)</h2>
+    <p style="font-size:0.8rem; color:gray;">Metric: % Change relative to the first recorded value in the selected range.</p>
 
-    <!-- Historical Chart -->
-    <h2 style="margin-top: 2rem;">Historical USD Movement (Quarterly Since 2019)</h2>
     <div style="margin-bottom: 1rem;">
       <label for="start-date"><strong>Start Date:</strong></label>
       <input type="date" id="start-date" style="margin-left:5px;">
@@ -150,11 +149,9 @@
       <button id="update-historical-btn" style="margin-left:10px;">Update Chart</button>
     </div>
 
-    <div id="historical-container">
-      <canvas id="historical-chart" width="800" height="300"></canvas>
-      <div id="historical-legend">
-        📈 Line colors = EUR, JPY, KRW, CNY relative to USD
-      </div>
+    <canvas id="historical-chart" width="800" height="300"></canvas>
+    <div id="historical-legend">
+      📈 Line colors = EUR, JPY, KRW, CNY relative to USD
     </div>
 
     <button id="history-btn">View History</button>
@@ -167,171 +164,6 @@
 
   <footer>&copy; partconsole.com</footer>
 
-<script>
-// ⚡ JavaScript Section ⚡
-
-// --- CONFIGURATION ---
-const currencies = ['EUR', 'JPY', 'KRW', 'CNY'];
-const currencyNames = {
-  EUR: "Euro", JPY: "Japanese Yen", KRW: "South Korean Won", CNY: "Chinese Yuan"
-};
-
-let todayRates = {}, pastRates = {}, gapData = [];
-let movementChart, historicalChart;
-
-// --- FETCH FUNCTIONS ---
-async function fetchExchangeRates() {
-  const res = await fetch('https://api.frankfurter.app/latest?from=USD');
-  const data = await res.json();
-  todayRates = data.rates;
-  updateTable();
-  updateLastUpdated();
-}
-
-async function fetchHistoricalRates(start, end) {
-  const res = await fetch(`https://api.frankfurter.app/${start}..${end}?from=USD&to=EUR,JPY,KRW,CNY`);
-  const data = await res.json();
-  plotHistoricalChart(data);
-}
-
-// --- UPDATE FUNCTIONS ---
-function updateTable() {
-  const tbody = document.getElementById("report-body");
-  tbody.innerHTML = "";
-
-  currencies.forEach(curr => {
-    const rate = todayRates[curr];
-    if (rate) {
-      const row = tbody.insertRow();
-      row.innerHTML = `
-        <td>${curr} (${currencyNames[curr]})</td>
-        <td>${rate}</td>
-        <td>${((rate - 1) * 100).toFixed(2)}%</td>
-        <td id="past-${curr}">N/A</td>
-        <td id="gap-${curr}">N/A</td>
-        <td id="interpret-${curr}">N/A</td>
-      `;
-    }
-  });
-
-  document.getElementById("compare-btn").onclick = compareFXGap;
-  document.getElementById("sort-btn").onclick = sortByMovement;
-}
-
-async function compareFXGap() {
-  const selectedDate = document.getElementById("compare-date").value;
-  if (!selectedDate) return alert("Please select a date!");
-
-  const res = await fetch(`https://api.frankfurter.app/${selectedDate}?from=USD`);
-  const data = await res.json();
-  pastRates = data.rates;
-  updateFXGap();
-}
-
-function updateFXGap() {
-  gapData = [];
-
-  currencies.forEach(curr => {
-    const today = todayRates[curr];
-    const past = pastRates[curr];
-    if (today && past) {
-      const pastCell = document.getElementById(`past-${curr}`);
-      const gapCell = document.getElementById(`gap-${curr}`);
-      const interpretCell = document.getElementById(`interpret-${curr}`);
-      const gap = ((today - past) / past * 100).toFixed(2);
-
-      pastCell.textContent = past.toFixed(4);
-      gapCell.innerHTML = `${gap > 0 ? "+" : ""}${gap}%`;
-      interpretCell.textContent = gap > 0 ? "▲" : gap < 0 ? "▼" : "–";
-
-      gapCell.style.color = gap > 0 ? "green" : gap < 0 ? "red" : "gray";
-      interpretCell.style.color = gap > 0 ? "green" : gap < 0 ? "red" : "gray";
-
-      gapData.push({ currency: curr, gap: parseFloat(gap) });
-    }
-  });
-
-  updateChart();
-}
-
-function updateChart() {
-  const ctx = document.getElementById('movement-chart').getContext('2d');
-  if (movementChart) movementChart.destroy();
-
-  movementChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: gapData.map(d => d.currency),
-      datasets: [{
-        label: 'USD Movement (%)',
-        data: gapData.map(d => d.gap),
-        backgroundColor: gapData.map(d => d.gap > 0 ? 'green' : d.gap < 0 ? 'red' : 'gray')
-      }]
-    },
-    options: { indexAxis: 'y' }
-  });
-}
-
-function plotHistoricalChart(data) {
-  const ctx = document.getElementById('historical-chart').getContext('2d');
-  if (historicalChart) historicalChart.destroy();
-
-  const labels = Object.keys(data.rates);
-  const baseRates = {};
-  const datasets = currencies.map(curr => {
-    baseRates[curr] = data.rates[labels[0]][curr];
-    return {
-      label: `${curr} (${currencyNames[curr]})`,
-      data: labels.map(date => ((data.rates[date][curr] - baseRates[curr]) / baseRates[curr]) * 100),
-      borderColor: getColor(curr),
-      fill: false
-    };
-  });
-
-  historicalChart = new Chart(ctx, {
-    type: 'line',
-    data: { labels, datasets },
-    options: { scales: { x: { maxTicksLimit: 12 } } }
-  });
-}
-
-function getColor(curr) {
-  return { EUR: 'blue', JPY: 'green', KRW: 'purple', CNY: 'orange' }[curr] || 'gray';
-}
-
-function updateLastUpdated() {
-  const now = new Date();
-  document.getElementById('last-updated').innerText = `Last Updated: ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-}
-
-// --- BUTTONS ---
-document.getElementById("export-btn").onclick = () => {
-  const workbook = XLSX.utils.table_to_book(document.getElementById("report-table"), { sheet: "Exchange Report" });
-  XLSX.writeFile(workbook, "exchange_rate_report.xlsx");
-};
-
-document.getElementById("return-btn").onclick = () => location.href = "main.html";
-document.getElementById("history-btn").onclick = () => location.href = "history.html";
-
-document.getElementById("update-historical-btn").onclick = () => {
-  const start = document.getElementById("start-date").value;
-  const end = document.getElementById("end-date").value;
-  if (!start || !end) return alert("Select both dates!");
-  fetchHistoricalRates(start, end);
-};
-
-// --- INIT ---
-function updateDateTime() {
-  const now = new Date();
-  document.getElementById('report-date-time').innerText = `Date: ${now.toLocaleDateString()} | Time: ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-}
-setInterval(updateDateTime, 60000);
-updateDateTime();
-fetchExchangeRates();
-fetchHistoricalRates('2019-01-01', new Date().toISOString().split('T')[0]);
-setInterval(fetchExchangeRates, 300000);
-
-</script>
-
+  <!-- JavaScript will be inserted next -->
 </body>
 </html>
