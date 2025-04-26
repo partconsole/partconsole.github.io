@@ -118,14 +118,31 @@
     </div>
   </div>
 
-  <!-- Link to older reports -->
+  <!-- Link to Older Reports -->
   <div>
-    <a href="older.html" class="older-link">View Older Reports</a>
+    <a href="older.html" class="older-link" id="older-link">View Older Reports</a>
   </div>
 
-  <!-- Return to Economical Button -->
+  <!-- Return to Economical -->
   <button id="return-btn" onclick="window.location.href='economical.html'">Return to Economical</button>
 
   <footer>&copy; partconsole.com</footer>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      fetch('older.html')
+        .then(response => response.text())
+        .then(html => {
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = html;
+          const fileList = tempDiv.querySelectorAll('#older-files li');
+          const count = fileList.length;
+          if (count > 0) {
+            document.getElementById('older-link').textContent = `View Older Reports (${count} available)`;
+          }
+        })
+        .catch(error => console.error('Error fetching older.html:', error));
+    });
+  </script>
 </body>
 </html>
