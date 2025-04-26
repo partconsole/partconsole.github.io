@@ -21,7 +21,7 @@
     th, td {
       border: 1px solid black;
       padding: 8px;
-      text-align: left;
+      text-align: center;
       vertical-align: middle;
     }
     input[type="date"], button {
@@ -82,19 +82,28 @@
   <p id="report-date-time">Loading current date and time...</p>
 
   <table id="report-table">
-    <tr>
-      <th>Currency</th>
-      <th>Exchange Rate</th>
-      <th>Percent Conversion (%)</th>
-      <th>
-        FX Power Gap (%)
-        <input type="date" id="compare-date" style="margin-left:10px;">
-        <button id="compare-btn" style="margin-left:5px;">Compare</button>
-      </th>
-    </tr>
+    <thead>
+      <tr>
+        <th rowspan="2">Currency</th>
+        <th rowspan="2">Today's Rate</th>
+        <th rowspan="2">% Conversion</th>
+        <th colspan="2">FX Power Gap</th>
+        <th rowspan="2">Interpretation</th>
+      </tr>
+      <tr>
+        <th>Past Rate</th>
+        <th>Gap (%) 
+          <input type="date" id="compare-date" style="margin-left:5px;">
+          <button id="compare-btn" style="margin-left:5px;">Compare</button>
+        </th>
+      </tr>
+    </thead>
+    <tbody id="report-body">
+      <!-- Rows generated dynamically -->
+    </tbody>
   </table>
 
-  <!-- Explanation under the table -->
+  <!-- Explanation -->
   <div id="explanation">
     <p><strong>FX Power Gap Formula:</strong><br>
     (Today's Rate − Past Rate) ÷ Past Rate × 100</p>
@@ -104,7 +113,7 @@
     - A <span style="color:red;">negative</span> gap means USD weakened.</p>
   </div>
 
-  <!-- History button -->
+  <!-- Buttons -->
   <button id="history-btn">View History</button>
 
   <div id="fixed-buttons">
@@ -118,7 +127,6 @@
 
   <script>
     const currencies = ['EUR', 'JPY', 'KRW', 'CNY'];
-
     const currencyNames = {
       EUR: "Euro",
       JPY: "Japanese Yen",
@@ -137,35 +145,27 @@
     }
 
     function updateTable(data) {
-      const table = document.getElementById("report-table");
-      table.innerHTML = `
-        <tr>
-          <th>Currency</th>
-          <th>Exchange Rate</th>
-          <th>Percent Conversion (%)</th>
-          <th>
-            FX Power Gap (%)
-            <input type="date" id="compare-date" style="margin-left:10px;">
-            <button id="compare-btn" style="margin-left:5px;">Compare</button>
-          </th>
-        </tr>
-      `;
+      const tbody = document.getElementById("report-body");
+      tbody.innerHTML = "";
+
       currencies.forEach(currency => {
         const rate = data.rates[currency];
         if (rate !== undefined) {
           let percentConversion = ((rate - 1) * 100).toFixed(2);
           percentConversion = percentConversion > 0 ? `+${percentConversion}%` : `${percentConversion}%`;
-          const row = table.insertRow();
+
+          const row = tbody.insertRow();
           row.innerHTML = `
             <td>${currency} (${currencyNames[currency]})</td>
             <td>${rate}</td>
             <td>${percentConversion}</td>
+            <td id="past-${currency}">N/A</td>
             <td id="gap-${currency}">N/A</td>
+            <td id="interpret-${currency}">N/A</td>
           `;
         }
       });
 
-      // Reattach Compare button
       document.getElementById("compare-btn").onclick = compareFXGap;
     }
 
@@ -191,18 +191,29 @@
       currencies.forEach(currency => {
         const todayRate = todayRates[currency];
         const pastRate = pastRates[currency];
+        const pastCell = document.getElementById(`past-${currency}`);
         const gapCell = document.getElementById(`gap-${currency}`);
-        if (gapCell && todayRate && pastRate) {
+        const interpretCell = document.getElementById(`interpret-${currency}`);
+
+        if (pastCell && gapCell && interpretCell && todayRate && pastRate) {
+          pastCell.textContent = pastRate;
+
           const gapPercent = ((todayRate - pastRate) / pastRate * 100).toFixed(2);
           gapCell.textContent = (gapPercent > 0 ? "+" : "") + gapPercent + "%";
 
-          // Color code the FX Gap
+          // Color coding and Interpretation arrows
           if (gapPercent > 0) {
-            gapCell.style.color = "green"; // USD strengthened
+            gapCell.style.color = "green";
+            interpretCell.textContent = "▲";
+            interpretCell.style.color = "green";
           } else if (gapPercent < 0) {
-            gapCell.style.color = "red";   // USD weakened
+            gapCell.style.color = "red";
+            interpretCell.textContent = "▼";
+            interpretCell.style.color = "red";
           } else {
-            gapCell.style.color = "gray";  // No change
+            gapCell.style.color = "gray";
+            interpretCell.textContent = "–";
+            interpretCell.style.color = "gray";
           }
         }
       });
